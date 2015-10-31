@@ -13,16 +13,37 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var ff = new FordFulkerson();
+            var ff = new FordFulkerson(5);
+            ff.AddEdge(0, 1, 10);
+            ff.AddEdge(0, 2, 2);
+            ff.AddEdge(1, 2, 6);
+            ff.AddEdge(1, 3, 6);
+            ff.AddEdge(2, 4, 5);
+            ff.AddEdge(3, 2, 3);
+            ff.AddEdge(3, 4, 8);
+            Assert.AreEqual(11, ff.GetMaxFlow(0, 4));
 
-            ff.AddEdge(0, 1, 50);
-            ff.AddEdge(0, 2, 60);
-            ff.AddEdge(1, 2, 40);
-            ff.AddEdge(1, 3, 40);
-            ff.AddEdge(2, 3, 30);
 
-            Assert.AreEqual(40, ff.GetMaxFlow(1, 3));
-            Assert.AreEqual(30, ff.GetMaxFlow(0, 3));
+            ff = new FordFulkerson(5);
+            ff.AddEdge(0, 1, 10);
+            ff.AddEdge(0, 2, 2);
+            ff.AddEdge(1, 2, 6);
+            ff.AddEdge(1, 3, 6);
+            ff.AddEdge(2, 4, 5);
+            ff.AddEdge(3, 2, 3);
+            ff.AddEdge(3, 4, 8);
+            Assert.AreEqual(11, ff.GetMaxFlow(1, 4));
+
+
+            ff = new FordFulkerson(5);
+            ff.AddEdge(0, 1, 10);
+            ff.AddEdge(0, 2, 2);
+            ff.AddEdge(1, 2, 6);
+            ff.AddEdge(1, 3, 6);
+            ff.AddEdge(2, 4, 5);
+            ff.AddEdge(3, 2, 3);
+            ff.AddEdge(3, 4, 8);
+            Assert.AreEqual(9, ff.GetMaxFlow(1, 2));
 
         }
     }

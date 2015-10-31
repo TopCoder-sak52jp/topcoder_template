@@ -1,6 +1,3 @@
-$BEGINCUT$
-$PROBLEMDESC$
-$ENDCUT$
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,23 +6,46 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
 
+
     #region My Libraries
 
     public class PriorityQueue<T> where T : IComparable
     {
+        class DescComparer<T> : IComparer<T>
+        {
+            public int Compare(T x, T y)
+            {
+                return Comparer<T>.Default.Compare(y, x);
+            }
+        }
+
+        class StrReverseComparer : IComparer<string>
+        {
+            public int Compare(string x, string y)
+            {
+                return -x.CompareTo(y);
+            }
+        }
+
         #region member
         SortedList<T, int> sortedList;
         int _count;
-        int order_type = 0;
         #endregion
 
         public int Count
         {
             get { return _count; }
         }
-        public PriorityQueue()
+
+        /// <summary>
+        /// sort type=0: asc, 1:desc
+        /// </summary>
+        /// <param name="sortType"></param>
+        public PriorityQueue(int sortType=0)
         {
             _count = 0;
+
+            var comparare = sortType == 0 ? (IComparer<T>)Comparer<T>.Default : new DescComparer<T>();
 
             //force ascii sorting
             //if (typeof(T) == typeof(string))    //cannot use it for TopCoder
@@ -33,33 +53,23 @@ using System.Linq;
             {
                 //Console.WriteLine(typeof(T).ToString());
 
-                SortedList<string, int> wk = new SortedList<string, int>(StringComparer.Ordinal);
+                SortedList<string, int> wk = sortType == 0 ? new SortedList<string, int>(StringComparer.Ordinal) :
+                    new SortedList<string, int>(new StrReverseComparer());
                 sortedList = wk as SortedList<T, int>;
             }
             else
             {
-                sortedList = new SortedList<T, int>();
+                sortedList = new SortedList<T, int>(comparare);
             }
 
         }
-        //type 0: dec, 1: asc
-        public PriorityQueue(int type)
-            : this()
-        {
-            if (type == 1) order_type = 1;
-        }
-        public PriorityQueue(IEnumerable<T> enumerable)
-            : this()
+        public PriorityQueue(IEnumerable<T> enumerable, int sortType=0)
+            : this(sortType)
         {
             foreach (var r in enumerable)
             {
                 this.Enqueue(r);
             }
-        }
-        public PriorityQueue(int type, IEnumerable<T> enumerable)
-            : this(enumerable)
-        {
-            if (type == 1) order_type = 1;
         }
         public void Enqueue(T parameter)
         {
@@ -108,20 +118,11 @@ using System.Linq;
                 return default(T);
             }
 
-            if (order_type == 0)
-            {
-                return sortedList.Keys[0];
-            }
-            else
-            {
-                return sortedList.Keys[sortedList.Count - 1];
-            }
+            return sortedList.Keys[0];
         }
         public IEnumerator<T> GetEnumerator()
         {
             IEnumerable<KeyValuePair<T, int>> workSortedList = sortedList;
-            if (order_type != 0) workSortedList = workSortedList.Reverse();
-
             foreach (var r in workSortedList)
             {
                 int num = r.Value;
@@ -224,8 +225,10 @@ using System.Linq;
         }
     }
 
-    // find the shortest path from start to all destination
-    // works for directed/nondirected graph
+    /// <summary>
+    /// find the shortest path from start to all destination
+    /// works for directed/nondirected graph
+    /// </summary>
     public class BellmanFord
     {
         public List<edge> Edge = new List<edge>();
@@ -312,7 +315,9 @@ using System.Linq;
         }
     }
 
-    // Get min cost between two points (Should not contain negative cost)
+    /// <summary>
+    /// Get min cost between two points (Should not contain negative cost)
+    /// </summary>
     public class Dijkstra
     {
         Dictionary<Tuple<int, int>, int> dic = new Dictionary<Tuple<int, int>, int>();
@@ -409,69 +414,72 @@ using System.Linq;
         }
     }
 
-    //has bug, dont use it
-    public class UnionFind<T>
+    /// <summary>
+    /// union find, positive int only
+    /// </summary>
+    public class UnionFind
     {
-        Dictionary<T, int> dic = new Dictionary<T, int>();
-        int _key = 0;
+        private int[] data;
 
-        public bool Add(T parameter)
+        public UnionFind(int size)
         {
-            if (dic.ContainsKey(parameter))
-            {
-                //do nothing (error)
-                return false;
-            }
-            else
-            {
-                dic.Add(parameter, _key++);
-                return true;
-            }
+            data = new int[size];
+            for (int i = 0; i < size; i++) data[i] = -1;
         }
 
-        public bool Unite(T parameter1, T parameter2)
+        public bool Unite(int x, int y)
         {
-            if (!dic.ContainsKey(parameter1) || !dic.ContainsKey(parameter2))
+            x = Root(x);
+            y = Root(y);
+
+            if (x != y)
             {
-                return false;
+                if (data[y] < data[x])
+                {
+                    var tmp = y;
+                    y = x;
+                    x = tmp;
+                }
+                data[x] += data[y];
+                data[y] = x;
             }
-            else
-            {
-                dic[parameter2] = dic[parameter1] = Math.Min(dic[parameter2], dic[parameter1]);
-                return true;
-            }
+            return x != y;
         }
 
-        public bool IsSameGroup(T parameter1, T parameter2)
+        public bool IsSameGroup(int x, int y)
         {
-            if (!dic.ContainsKey(parameter1) || !dic.ContainsKey(parameter2))
-            {
-                return false;
-            }
-            else
-            {
-                return dic[parameter2] == dic[parameter1];
-            }
+            return Root(x) == Root(y);
+        }
+
+        private int Root(int x)
+        {
+            return data[x] < 0 ? x : data[x] = Root(data[x]);
         }
     }
 
+    /// <summary>
+    /// Vertice index should be positive number
+    /// </summary>
     public class Kruskal
     {
-        List<ComparablePair<int, Tuple<int, int>>> list = new List<ComparablePair<int, Tuple<int, int>>>();
+        SortedSet<ComparablePair<int, Tuple<int, int>>> pathSet = new SortedSet<ComparablePair<int, Tuple<int, int>>>();
 
+        private int maxVert = 1;
         public void AddPath(int s, int t, int cost)
         {
+            maxVert = Math.Max(maxVert, s);
+            maxVert = Math.Max(maxVert, t);
+
             var tuple = new Tuple<int, int>(s, t);
-            list.Add(new ComparablePair<int, Tuple<int, int>>(cost, tuple));
+            pathSet.Add(new ComparablePair<int, Tuple<int, int>>(cost, tuple));
         }
 
         public int GetCost()
         {
             int ret = 0;
-            var unionFind = new UnionFind<int>();
-            list.Sort();
+            var unionFind = new UnionFind(maxVert + 1);
 
-            foreach (var path in list)
+            foreach (var path in pathSet)
             {
                 int cost = path.Item1;
                 int vertex1 = path.Item2.Item1;
@@ -479,8 +487,6 @@ using System.Linq;
 
                 if (!unionFind.IsSameGroup(vertex1, vertex2))
                 {
-                    unionFind.Add(vertex1);
-                    unionFind.Add(vertex2);
                     unionFind.Unite(vertex1, vertex2);
                     ret += cost;
                 }
@@ -490,55 +496,48 @@ using System.Linq;
         }
     }
 
-    //get max flow from s to t
+    /// <summary>
+    /// get max flow from s to t
+    /// </summary>
     public class FordFulkerson
     {
-        Dictionary<Tuple<int, int>, int> dic = new Dictionary<Tuple<int, int>, int>();  //edge s to t, and its cost
-        int[,] edgeArray;
-        bool[] usedFlg;
-        int maxIdx = -1;
+        class Edge { public int to; public int cap; public int rev;};
 
-        public void AddEdge(int s, int t, int flow)
+        List<Edge>[] G;
+        bool[] used;
+
+        public FordFulkerson(int size)
         {
-            var tuple = new Tuple<int, int>(s, t);
-
-            if (dic.ContainsKey(tuple))
+            G = new List<Edge>[size];
+            for (int i = 0; i < size; i++)
             {
-                dic[tuple] = dic[tuple] + flow;
+                G[i] = new List<Edge>();
             }
-            else
-            {
-                dic.Add(tuple, flow);
-            }
-
-            maxIdx = Math.Max(Math.Max(maxIdx, s), t);
+            used = new bool[size];
         }
 
-        private void getEdgeArray()
+        public void AddEdge(int f, int t, int cap)
         {
-            edgeArray = new int[maxIdx + 1, maxIdx + 1];
-            foreach (var edge in dic)
-            {
-                edgeArray[edge.Key.Item1, edge.Key.Item2] = edge.Value;
-            }
+            G[f].Add(new Edge() { to = t, cap = cap, rev = G[t].Count() });
+            G[t].Add(new Edge() { to = f, cap = 0, rev = G[f].Count() - 1 });
         }
 
-        private int getMaxFlow(int s, int t, int f)
+        private int dfs(int v, int t, int f)
         {
-            if (s == t) return f;
-            usedFlg[s] = true;
-
-            for (int nextVertex = 0; nextVertex < maxIdx + 1; nextVertex++)
+            if (v == t) return f;
+            used[v] = true;
+            for (int i = 0; i < G[v].Count(); i++)
             {
-                int capacity = edgeArray[s, nextVertex];
-                if (usedFlg[nextVertex] == false && capacity > 0)
+                var e = G[v][i];
+                if (!used[e.to] && e.cap > 0)
                 {
-                    int usedFlowCapacity = getMaxFlow(nextVertex, t, Math.Min(capacity, f));
-                    if (usedFlowCapacity > 0)
+                    var d = dfs(e.to, t, Math.Min(f, e.cap));
+                    if (d > 0)
                     {
-                        edgeArray[s, nextVertex] -= usedFlowCapacity;
-                        edgeArray[nextVertex, s] += usedFlowCapacity;
-                        return usedFlowCapacity;
+                        e.cap -= d;
+                        var tgt = G[e.to].ElementAt(e.rev);
+                        tgt.cap += d;
+                        return d;
                     }
                 }
             }
@@ -547,44 +546,48 @@ using System.Linq;
 
         public int GetMaxFlow(int s, int t)
         {
-            if (maxIdx == -1) return 0; //no path information
-
             int flow = 0;
-            getEdgeArray();
-
             while (true)
             {
-                usedFlg = new bool[maxIdx + 1];
-
-                int f = getMaxFlow(s, t, Int32.MaxValue);
-                if (f == 0) return flow;
+                for (int i = 0; i < used.Length; i++) used[i] = false;
+                int f = dfs(s, t, Int32.MaxValue);
+                if (f == 0)
+                {
+                    return flow;
+                }
                 flow += f;
             }
         }
-
     }
 
+    /// <summary>
+    /// get max matching between left side nodes and right side nodes
+    /// </summary>
     public class BipartiteMatching
     {
-        FordFulkerson fordFulkerson = new FordFulkerson();
+        FordFulkerson fordFulkerson;
         HashSet<int> startVertice = new HashSet<int>();
         HashSet<int> targetVertice = new HashSet<int>();
         int maxIndex = -1;
 
-        public void AddPair(int leftSide, int rightSide)
+        public BipartiteMatching(int size)
         {
-            fordFulkerson.AddEdge(leftSide + 1, rightSide, 1);
-
-            startVertice.Add(leftSide + 1);
-            targetVertice.Add(rightSide);
-
-            maxIndex = Math.Max(leftSide + 1, Math.Max(rightSide, maxIndex));
+            fordFulkerson = new FordFulkerson(size + 2);
+            maxIndex = size + 1;
         }
 
-        public int GetMatchingNum()
+        public void AddPair(int leftSide, int rightSide)
+        {
+            fordFulkerson.AddEdge(leftSide + 1, rightSide + 1, 1);
+
+            startVertice.Add(leftSide + 1);
+            targetVertice.Add(rightSide + 1);
+        }
+
+        public int GetMaxMatchingNum()
         {
             int start = 0;
-            int target = maxIndex + 1;
+            int target = maxIndex;
 
             foreach (var s in startVertice)
             {

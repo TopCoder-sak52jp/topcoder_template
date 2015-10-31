@@ -42,9 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BipartiteMatching_Tests.cs" />
     <Compile Include="FordFulkerson_Tests.cs" />
     <Compile Include="Kruskal_Tests.cs" />
     <Compile Include="Lib.cs" />
+    <Compile Include="PriorityQueue_Tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnionFind_Tests.cs" />
