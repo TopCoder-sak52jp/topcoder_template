@@ -8,132 +8,130 @@ namespace topcoder_template_test
 {
     #region My Libraries
 
-    public class PriorityQueue<T> where T : IComparable
+    public class PriorityQueue<T> where T: IComparable
     {
-        class DescComparer<T> : IComparer<T>
-        {
-            public int Compare(T x, T y)
-            {
-                return Comparer<T>.Default.Compare(y, x);
-            }
-        }
+        private IComparer<T> _comparer = null;
+        private int _type = 0;
 
-        class StrReverseComparer : IComparer<string>
-        {
-            public int Compare(string x, string y)
-            {
-                return -x.CompareTo(y);
-            }
-        }
+        private T[] _heap;
+        private int _sz = 0;
 
-        #region member
-        SortedList<T, int> sortedList;
-        int _count;
-        #endregion
+        private int _count = 0;
 
-        public int Count
+        /// <summary>
+        /// Priority Queue with custom comparer
+        /// </summary>
+        public PriorityQueue(int maxSize, IComparer<T> comparer)
         {
-            get { return _count; }
+            _heap = new T[maxSize];
+            _comparer = comparer;
         }
 
         /// <summary>
-        /// sort type=0: asc, 1:desc
+        /// Priority queue
         /// </summary>
-        /// <param name="sortType"></param>
-        public PriorityQueue(int sortType=0)
+        /// <param name="maxSize">max size</param>
+        /// <param name="type">0: asc, 1:desc</param>
+        public PriorityQueue(int maxSize, int type = 0)
         {
-            _count = 0;
-
-            var comparare = sortType == 0 ? (IComparer<T>)Comparer<T>.Default : new DescComparer<T>();
-
-            //force ascii sorting
-            //if (typeof(T) == typeof(string))    //cannot use it for TopCoder
-            if (typeof(T).ToString()=="System.String")
-            {
-                //Console.WriteLine(typeof(T).ToString());
-
-                SortedList<string, int> wk = sortType == 0 ? new SortedList<string, int>(StringComparer.Ordinal) :
-                    new SortedList<string, int>(new StrReverseComparer());
-                sortedList = wk as SortedList<T, int>;
-            }
-            else
-            {
-                sortedList = new SortedList<T, int>(comparare);
-            }
-
+            _heap = new T[maxSize];
+            _type = type;
         }
-        public PriorityQueue(IEnumerable<T> enumerable, int sortType=0)
-            : this(sortType)
+
+        private int Compare(T x, T y)
         {
-            foreach (var r in enumerable)
-            {
-                this.Enqueue(r);
-            }
+            if (_comparer != null) return _comparer.Compare(x, y);
+            return _type == 0 ? x.CompareTo(y) : y.CompareTo(x);
         }
-        public void Enqueue(T parameter)
+
+        public void Push(T x)
         {
-            if (sortedList.ContainsKey(parameter))
-            {
-                sortedList[parameter]++;
-            }
-            else
-            {
-                sortedList.Add(parameter, 1);
-            }
             _count++;
-        }
-        public T Dequeue()
-        {
-            T returnValue;
-            returnValue = this.Peek();
 
-            sortedList[returnValue]--;
+            //node number
+            var i = _sz++;
 
-            if (sortedList[returnValue] == 0)
+            while (i > 0)
             {
-                sortedList.Remove(returnValue);
+                //parent node number
+                var p = (i - 1) / 2;
+
+                if (Compare(_heap[p], x) <= 0) break;
+
+                _heap[i] = _heap[p];
+                i = p;
             }
 
+            _heap[i] = x;
+        }
+
+        public T Pop()
+        {
             _count--;
 
-            return returnValue;
-        }
-        public void Clear()
-        {
-            sortedList.Clear();
-            _count = 0;
-        }
-        public bool Contains(T parameter)
-        {
-            return sortedList.ContainsKey(parameter);
-        }
-        public T Peek()
-        {
-            if (this.Count == 0)
+            T ret = _heap[0];
+            T x = _heap[--_sz];
+
+            int i = 0;
+            while (i * 2 + 1 < _sz)
             {
-                //throw new InvalidOperationException();    //cannot use for TopCoder
-                
-                Console.WriteLine("Invalid Operation Exception");
-                return default(T);
+                //children
+                int a = i * 2 + 1;
+                int b = i * 2 + 2;
+
+                if (b < _sz && Compare(_heap[b], _heap[a]) < 0) a = b;
+
+                if (Compare(_heap[a], x) >= 0) break;
+
+                _heap[i] = _heap[a];
+                i = a;
             }
 
-            return sortedList.Keys[0];
+            _heap[i] = x;
+
+            return ret;
         }
+
+        public int Count()
+        {
+            return _count;
+        }
+
+        public T Peek()
+        {
+            return _heap[0];
+        }
+
+        public bool Contains(T x)
+        {
+            for (int i = 0; i < _sz; i++) if (x.Equals(_heap[i])) return true;
+            return false;
+        }
+
+        public void Clear()
+        {
+            while (this.Count() > 0) this.Pop();
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
-            IEnumerable<KeyValuePair<T, int>> workSortedList = sortedList;
-            foreach (var r in workSortedList)
+            var ret = new List<T>();
+
+            while (this.Count() > 0)
             {
-                int num = r.Value;
-                for (int i = 0; i < num; i++)
-                {
-                    yield return r.Key;
-                }
+                ret.Add(this.Pop());
+            }
+
+            foreach (var r in ret)
+            {
+                this.Push(r);
+                yield return r;
             }
         }
+
         public T[] ToArray()
         {
-            T[] array = new T[Count];
+            T[] array = new T[_sz];
             int i = 0;
 
             foreach (var r in this)
@@ -145,7 +143,9 @@ namespace topcoder_template_test
         }
     }
 
-    //not finished
+    /// <summary>
+    /// NOT COMPLETED
+    /// </summary>
     public class Bounds<T> where T: IComparable
     {
         public int LowerBound(IList<T> enumParameter, T target)
@@ -323,6 +323,15 @@ namespace topcoder_template_test
         int maxIndex = -1;
         const int INF = Int32.MaxValue;
 
+        /// <summary>
+        /// Dijkstra
+        /// </summary>
+        /// <param name="size">max edge num</param>
+        public Dijkstra(int size)
+        {
+            maxIndex = size + 1;
+        }
+
         // Add a path with its cost
         public void AddPath(int s, int t, int cost)
         {
@@ -335,9 +344,6 @@ namespace topcoder_template_test
             {
                 dic.Add(tuple, cost);
             }
-
-            maxIndex = Math.Max(maxIndex, s);
-            maxIndex = Math.Max(maxIndex, t);
         }
 
         private int[,] getEdgeArray()
@@ -371,12 +377,12 @@ namespace topcoder_template_test
             for (int i = 0; i < cost.Length; i++) cost[i] = INF;
             cost[s] = 0;
 
-            var priorityQueue = new PriorityQueue< ComparablePair<int, int> >();
-            priorityQueue.Enqueue( new ComparablePair<int, int>(0, s) );
+            var priorityQueue = new PriorityQueue< ComparablePair<int, int>>(maxIndex + 1);
+            priorityQueue.Push( new ComparablePair<int, int>(0, s) );
 
-            while (priorityQueue.Count > 0)
+            while (priorityQueue.Count() > 0)
             {
-                var costDestinationPair = priorityQueue.Dequeue();
+                var costDestinationPair = priorityQueue.Pop();
                 if (cost[costDestinationPair.Item2] < costDestinationPair.Item1) continue;
 
                 for (int i = 0; i < maxIndex + 1; i++)
@@ -386,7 +392,7 @@ namespace topcoder_template_test
                     if (newCostToi < cost[i])
                     {
                         cost[i] = newCostToi;
-                        priorityQueue.Enqueue(new ComparablePair<int, int>(newCostToi, i));
+                        priorityQueue.Push(new ComparablePair<int, int>(newCostToi, i));
                     }
                 }
             }
