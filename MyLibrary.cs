@@ -329,69 +329,51 @@ namespace topcoder_template_test
     }
 
     /// <summary>
-    /// Get min cost between two points (Should not contain negative cost)
+    /// Get min cost between two points
     /// </summary>
     public class Dijkstra
     {
-        Dictionary<Tuple<int, int>, int> dic = new Dictionary<Tuple<int, int>, int>();
-        int maxIndex = -1;
-        const int INF = Int32.MaxValue;
+        private int maxIndex = -1;
+        private const int INF = Int32.MaxValue;
+
+        private int[,] _edgeArray;
 
         /// <summary>
-        /// Dijkstra
+        /// Dijkstra, get min cost between two points
+        /// should not contain negatie cost path
         /// </summary>
-        /// <param name="size">max edge num</param>
+        /// <param name="size">max index of vertice</param>
         public Dijkstra(int size)
         {
             maxIndex = size + 1;
-        }
+            _edgeArray = new int[maxIndex, maxIndex];
 
-        // Add a path with its cost
-        public void AddPath(int s, int t, int cost)
-        {
-            var tuple = new Tuple<int, int>(s, t);
-            if (dic.ContainsKey(tuple))
+            for (int i = 0; i < _edgeArray.GetLength(0); i++)
             {
-                dic[tuple] = Math.Min(dic[tuple], cost); //Choose cheaper path
-            }
-            else
-            {
-                dic.Add(tuple, cost);
-            }
-        }
-
-        private int[,] getEdgeArray()
-        {
-            var edgeArray = new int[maxIndex+1, maxIndex+1];
-            for (int i = 0; i < edgeArray.GetLength(0); i++)
-            {
-                for (int j = 0; j < edgeArray.GetLength(1); j++)
+                for (int j = 0; j < _edgeArray.GetLength(1); j++)
                 {
-                    edgeArray[i, j] = INF;
-                    if (i == j) edgeArray[i, j] = 0;
+                    _edgeArray[i, j] = INF;
+                    if (i == j) _edgeArray[i, j] = 0;
                 }
             }
+        }
 
-            foreach (var r in dic)
-            {
-                edgeArray[r.Key.Item1, r.Key.Item2] = r.Value;
-                edgeArray[r.Key.Item2, r.Key.Item1] = r.Value;
-            }
-
-            return edgeArray;
+        // Add a path(no direction) with its cost
+        public void AddPath(int s, int t, int cost)
+        {
+            _edgeArray[s, t] = Math.Min(_edgeArray[s, t], cost);
+            _edgeArray[t, s] = _edgeArray[s, t];
         }
 
         //Get the min cost between s and t
         //return Int32.MaxValue if no path
         public int GetMinCost(int s, int t)
         {
-            // convert edge data as array
-            int[,] edgeArray = getEdgeArray();
-            int[] cost = new int[maxIndex + 1];
+            int[] cost = new int[maxIndex];
             for (int i = 0; i < cost.Length; i++) cost[i] = INF;
             cost[s] = 0;
 
-            var priorityQueue = new PriorityQueue< ComparablePair<int, int>>(maxIndex + 1);
+            var priorityQueue = new PriorityQueue<ComparablePair<int, int>>(maxIndex);
             priorityQueue.Push( new ComparablePair<int, int>(0, s) );
 
             while (priorityQueue.Count() > 0)
@@ -399,10 +381,10 @@ namespace topcoder_template_test
                 var costDestinationPair = priorityQueue.Pop();
                 if (cost[costDestinationPair.Item2] < costDestinationPair.Item1) continue;
 
-                for (int i = 0; i < maxIndex + 1; i++)
+                for (int i = 0; i < maxIndex; i++)
                 {
-                    int newCostToi = edgeArray[costDestinationPair.Item2, i] == INF ? INF : 
-                        costDestinationPair.Item1 + edgeArray[costDestinationPair.Item2, i];
+                    int newCostToi = _edgeArray[costDestinationPair.Item2, i] == INF ? INF :
+                        costDestinationPair.Item1 + _edgeArray[costDestinationPair.Item2, i];
                     if (newCostToi < cost[i])
                     {
                         cost[i] = newCostToi;

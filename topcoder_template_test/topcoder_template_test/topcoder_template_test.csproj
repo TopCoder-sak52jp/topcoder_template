@@ -49,6 +49,7 @@
       <Link>MyLibrary_vect.cs</Link>
     </Compile>
     <Compile Include="BipartiteMatching_Tests.cs" />
+    <Compile Include="Dijkstra_Tests.cs" />
     <Compile Include="FordFulkerson_Tests.cs" />
     <Compile Include="Kruskal_Tests.cs" />
     <Compile Include="PriorityQueue_Tests.cs" />
