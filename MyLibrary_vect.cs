@@ -6,51 +6,69 @@ using System.Threading.Tasks;
 
 namespace topcoder_template_test
 {
-    public class Vertex
+    /// <summary>
+    /// Pont/Vector class for 2D 
+    /// </summary>
+    public class Pt
     {
         public double X;
         public double Y;
 
-        public Vertex(double x, double y)
+        public Pt(double x, double y)
         {
             X = x;
             Y = y;
         }
 
-        public static Vertex operator +(Vertex v1, Vertex v2)
+        public static Pt operator +(Pt v1, Pt v2)
         {
-            return new Vertex(DoubleUtil.Add(v1.X, v2.X), DoubleUtil.Add(v1.Y, v2.Y));
+            return new Pt(DoubleUtil.Add(v1.X, v2.X), DoubleUtil.Add(v1.Y, v2.Y));
         }
-        public static Vertex operator -(Vertex v1, Vertex v2)
+        public static Pt operator -(Pt v1, Pt v2)
         {
-            return new Vertex(DoubleUtil.Add(v1.X, -v2.X), DoubleUtil.Add(v1.Y, -v2.Y));
+            return new Pt(DoubleUtil.Add(v1.X, -v2.X), DoubleUtil.Add(v1.Y, -v2.Y));
         }
-        public static Vertex operator *(Vertex v, double d)
+        public static Pt operator *(Pt v, double d)
         {
-            return new Vertex(v.X * d, v.Y * d);
+            return new Pt(v.X * d, v.Y * d);
         }
-        public double Dot(Vertex other)
+
+        /// <summary>
+        /// Dot product of two vectors: O -> this and O -> other
+        ///  a dot b = |a| |b| cos(theta) = ax bx + ax by
+        ///  zero if two vectors run orthogonally
+        /// </summary>
+        public double Dot(Pt other)
         {
             return DoubleUtil.Add(this.X * other.X, this.Y * other.Y);
         }
 
-        public double Cross(Vertex other)
+        /// <summary>
+        /// Cross(det) product of two vectors: O -> this and O -> other
+        ///  a x b = |a| |b| sin(theta) = ax by - ay bx
+        ///  zero if two vectors run parallelly
+        /// </summary>
+        public double Cross(Pt other)
         {
             return DoubleUtil.Add(this.X * other.Y, -this.Y * other.X);
         }
 
-        //point q exists on line p1-p2?
-        public static bool OnSeg(Vertex p1, Vertex p2, Vertex q)
+        /// <summary>
+        /// point q exists on line p1-p2?
+        /// </summary>
+        public static bool OnSeg(Pt p1, Pt p2, Pt q)
         {
             return (p1 - q).Cross(p2 - q) == 0 && (p1 - q).Dot(p2 - q) <= 0;
         }
 
-        //crosssing point of line p1-p2 and q1-q2
-        public static Vertex Intersect(Vertex p1, Vertex p2, Vertex q1, Vertex q2)
+        /// <summary>
+        /// crosssing point of line p1-p2 and q1-q2
+        /// </summary>
+        public static Pt Intersect(Pt p1, Pt p2, Pt q1, Pt q2)
         {
             return p1 + (p2 - p1) * ((q2 - q1).Cross(q1 - p1) / (q2 - q1).Cross(p2 - p1));
         }
-        public static bool HasIntersect(Vertex p1, Vertex p2, Vertex q1, Vertex q2)
+        public static bool HasIntersect(Pt p1, Pt p2, Pt q1, Pt q2)
         {
             if ((p1 - q1).Cross(p2 - q2) == 0)
             {
@@ -63,12 +81,12 @@ namespace topcoder_template_test
             }
         }
 
-        public static bool operator ==(Vertex x, Vertex y)
+        public static bool operator ==(Pt x, Pt y)
         {
             return (DoubleUtil.Eq(x.X, y.X) && DoubleUtil.Eq(x.Y, y.Y));
         }
 
-        public static bool operator !=(Vertex x, Vertex y)
+        public static bool operator !=(Pt x, Pt y)
         {
             return (!DoubleUtil.Eq(x.X, y.X) || !DoubleUtil.Eq(x.Y, y.Y));
         }
@@ -76,11 +94,11 @@ namespace topcoder_template_test
         {
             return Math.Sqrt(X * X + Y * Y);
         }
-        public double Dist(Vertex other)
+        public double Dist(Pt other)
         {
             return (this - other).Norm();
         }
-        public static double Dist(Vertex v1, Vertex v2)
+        public static double Dist(Pt v1, Pt v2)
         {
             return v1.Dist(v2);
         }
@@ -88,10 +106,10 @@ namespace topcoder_template_test
 
     public class Edge
     {
-        public Vertex p1, p2, vect;    //vector p1 -> p2
+        public Pt p1, p2, vect;    //vector p1 -> p2
         public double norm;
 
-        public Edge(Vertex p1n, Vertex p2n)
+        public Edge(Pt p1n, Pt p2n)
         {
             p1 = p1n;
             p2 = p2n;
@@ -117,10 +135,10 @@ namespace topcoder_template_test
                     return false;
                 //on the same line - "not intersect" only if one of the vertices is common,
                 //and the other doesn't belong to the line
-                if ((this.p1 == other.p1 && DoubleUtil.Eq(Vertex.Dist(this.p2, other.p2), this.norm + other.norm)) ||
-                    (this.p1 == other.p2 && DoubleUtil.Eq(Vertex.Dist(this.p2, other.p1), this.norm + other.norm)) ||
-                    (this.p2 == other.p1 && DoubleUtil.Eq(Vertex.Dist(this.p1, other.p2), this.norm + other.norm)) ||
-                    (this.p2 == other.p2 && DoubleUtil.Eq(Vertex.Dist(this.p1, other.p1), this.norm + other.norm)))
+                if ((this.p1 == other.p1 && DoubleUtil.Eq(Pt.Dist(this.p2, other.p2), this.norm + other.norm)) ||
+                    (this.p1 == other.p2 && DoubleUtil.Eq(Pt.Dist(this.p2, other.p1), this.norm + other.norm)) ||
+                    (this.p2 == other.p1 && DoubleUtil.Eq(Pt.Dist(this.p1, other.p2), this.norm + other.norm)) ||
+                    (this.p2 == other.p2 && DoubleUtil.Eq(Pt.Dist(this.p1, other.p1), this.norm + other.norm)))
                     return false;
                 return true;
             }
@@ -135,7 +153,7 @@ namespace topcoder_template_test
                 return false;
             return true;
         }
-        public double Dist(Vertex p)
+        public double Dist(Pt p)
         {
             //distance from p to the edge
             if (vect.Dot(p - p1) <= 0)
@@ -150,9 +168,9 @@ namespace topcoder_template_test
             //distance from the closest of the endpoints of "other" to "this"
             return Math.Min(Dist(other.p1), Dist(other.p2));
         }
-        public Vertex Intersect(Edge other)
+        public Pt Intersect(Edge other)
         {
-            return Vertex.Intersect(this.p1, this.p2, other.p1, other.p2);
+            return Pt.Intersect(this.p1, this.p2, other.p1, other.p2);
         }
     }
 
