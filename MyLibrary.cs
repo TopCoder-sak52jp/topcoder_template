@@ -459,18 +459,20 @@ namespace topcoder_template_test
     }
 
     /// <summary>
-    /// Vertice index should be positive number
+    /// Vertices index should be positive number
     /// </summary>
     public class Kruskal
     {
         SortedSet<ComparablePair<int, Tuple<int, int>>> pathSet = new SortedSet<ComparablePair<int, Tuple<int, int>>>();
 
-        private int maxVert = 1;
+        private int _maxIndex = 1;
+        public Kruskal(int maxIndex)
+        {
+            _maxIndex = maxIndex;
+        }
+
         public void AddPath(int s, int t, int cost)
         {
-            maxVert = Math.Max(maxVert, s);
-            maxVert = Math.Max(maxVert, t);
-
             var tuple = new Tuple<int, int>(s, t);
             pathSet.Add(new ComparablePair<int, Tuple<int, int>>(cost, tuple));
         }
@@ -478,7 +480,7 @@ namespace topcoder_template_test
         public int GetCost()
         {
             int ret = 0;
-            var unionFind = new UnionFind(maxVert + 1);
+            var unionFind = new UnionFind(_maxIndex + 1);
 
             foreach (var path in pathSet)
             {
