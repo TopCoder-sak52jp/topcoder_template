@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var uf = new UnionFind(100);
+            var uf = new UnionFind();
             Assert.IsFalse(uf.IsSameGroup(1, 2));
             Assert.IsFalse(uf.IsSameGroup(2, 3));
             Assert.IsFalse(uf.IsSameGroup(1, 3));
@@ -53,6 +53,21 @@ namespace topcoder_template_test
             Assert.IsTrue(uf.IsSameGroup(99, 0));
             Assert.IsTrue(uf.IsSameGroup(98, 0));
 
+        }
+
+        [TestMethod]
+        public void StringTest()
+        {
+            var uf = new UnionFind();
+
+            Assert.IsFalse(uf.IsSameGroup("1", "2"));
+            Assert.IsFalse(uf.IsSameGroup("2", "3"));
+            Assert.IsFalse(uf.IsSameGroup("1", "3"));
+
+            uf.Unite("1", "3");
+            Assert.IsFalse(uf.IsSameGroup("1", "2"));
+            Assert.IsFalse(uf.IsSameGroup("2", "3"));
+            Assert.IsTrue(uf.IsSameGroup("1", "3"));
         }
     }
 }

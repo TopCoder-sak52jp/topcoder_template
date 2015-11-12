@@ -415,48 +415,102 @@ namespace topcoder_template_test
         }
     }
 
-    /// <summary>
-    /// union find, positive int only
-    /// </summary>
     public class UnionFind
     {
-        private int[] data;
-
-        public UnionFind(int size)
+        private class Node
         {
-            data = new int[size];
-            for (int i = 0; i < size; i++) data[i] = -1;
+            public Node Parent { get; set; }
+            public int Rank { get; set; }
         }
 
-        public bool Unite(int x, int y)
-        {
-            x = Root(x);
-            y = Root(y);
+        private Dictionary<IComparable, Node> _dict = new Dictionary<IComparable, Node>();
 
-            if (x != y)
+        private Node Root(IComparable data)
+        {
+            if (!_dict.ContainsKey(data))
             {
-                if (data[y] < data[x])
-                {
-                    var tmp = y;
-                    y = x;
-                    x = tmp;
-                }
-                data[x] += data[y];
-                data[y] = x;
+                var node = new Node();
+                _dict.Add(data, node);
+                return node;
             }
-            return x != y;
+            else
+            {
+                var node = _dict[data];
+                return Find(node);
+            }
         }
 
-        public bool IsSameGroup(int x, int y)
+        private Node Find(Node node)
+        {
+            if (node.Parent == null) return node;
+            return node.Parent = Find(node.Parent);
+        }
+
+        public void Unite(IComparable x, IComparable y)
+        {
+            var xRoot = Root(x);
+            var yRoot = Root(y);
+            if (xRoot == yRoot) return;
+
+            if (xRoot.Rank < yRoot.Rank)
+            {
+                xRoot.Parent = yRoot;
+            }
+            else
+            {
+                yRoot.Parent = xRoot;
+                if (xRoot.Rank == yRoot.Rank) xRoot.Rank++;
+            }
+        }
+
+        public bool IsSameGroup(IComparable x, IComparable y)
         {
             return Root(x) == Root(y);
         }
-
-        private int Root(int x)
-        {
-            return data[x] < 0 ? x : data[x] = Root(data[x]);
-        }
     }
+
+    ///// <summary>
+    ///// union find, positive int only
+    ///// </summary>
+    //public class UnionFind
+    //{
+    //    private int[] data;
+
+    //    public UnionFind(int size)
+    //    {
+    //        data = new int[size];
+    //        for (int i = 0; i < size; i++) data[i] = -1;
+    //    }
+
+    //    public bool Unite(int x, int y)
+    //    {
+    //        x = Root(x);
+    //        y = Root(y);
+
+    //        if (x != y)
+    //        {
+    //            if (data[y] < data[x])
+    //            {
+    //                var tmp = y;
+    //                y = x;
+    //                x = tmp;
+    //            }
+    //            data[x] += data[y];
+    //            data[y] = x;
+    //        }
+    //        return x != y;
+    //    }
+
+    //    public bool IsSameGroup(int x, int y)
+    //    {
+    //        return Root(x) == Root(y);
+    //    }
+
+    //    private int Root(int x)
+    //    {
+    //        return data[x] < 0 ? x : data[x] = Root(data[x]);
+    //    }
+    //}
 
     /// <summary>
     /// Vertices index should be positive number
@@ -480,7 +534,7 @@ namespace topcoder_template_test
         public int GetCost()
         {
             int ret = 0;
-            var unionFind = new UnionFind(_maxIndex + 1);
+            var unionFind = new UnionFind();
 
             foreach (var path in pathSet)
             {
