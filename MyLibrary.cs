@@ -423,9 +423,9 @@ namespace topcoder_template_test
             public int Rank { get; set; }
         }
 
-        private Dictionary<IComparable, Node> _dict = new Dictionary<IComparable, Node>();
+        private Dictionary<object, Node> _dict = new Dictionary<object, Node>();
 
-        private Node Root(IComparable data)
+        private Node Root(object data)
         {
             if (!_dict.ContainsKey(data))
             {

@@ -69,5 +69,24 @@ namespace topcoder_template_test
             Assert.IsFalse(uf.IsSameGroup("2", "3"));
             Assert.IsTrue(uf.IsSameGroup("1", "3"));
         }
+
+        [TestMethod]
+        public void TypeMixedTest()
+        {
+            var uf = new UnionFind();
+
+            Assert.IsFalse(uf.IsSameGroup(1, "1"));
+            Assert.IsFalse(uf.IsSameGroup("2", 2));
+            Assert.IsFalse(uf.IsSameGroup("two", 2));
+
+            uf.Unite(1, "1");
+            uf.Unite(2, "2");
+            uf.Unite(2, "two");
+
+            Assert.IsTrue(uf.IsSameGroup(1, "1"));
+            Assert.IsTrue(uf.IsSameGroup("2", 2));
+            Assert.IsTrue(uf.IsSameGroup("two", 2));        //2 and "two" should be the same group!
+            Assert.IsTrue(uf.IsSameGroup("2", "two"));
+        }
     }
 }
