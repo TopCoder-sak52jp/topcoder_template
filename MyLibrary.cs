@@ -186,6 +186,58 @@ namespace topcoder_template_test
 
     static public class MyLib
     {
+        static public ulong ModPow(ulong x, ulong n, ulong mod)
+        {
+            ulong ret = 1;
+            while (n > 0)
+            {
+                if ((n & 1) == 1) ret = ret * x % mod;
+                x = x * x % mod;
+                n >>= 1;
+            }
+            return ret;
+        }
+
+        static public void Sieve(int[] prime, bool[] isPrime)
+        {
+            for (int i = 0; i < prime.Length; i++) prime[i] = -1;
+            for (int i = 0; i < isPrime.Length; i++) isPrime[i] = true;
+            isPrime[0] = isPrime[1] = false;
+
+            var idx = 0;
+            for (int i = 2; i < isPrime.Length; i++)
+            {
+                if (isPrime[i])
+                {
+                    prime[++idx] = i;
+                    for (int j = 2 * i; j < isPrime.Length; j += i) isPrime[j] = false;
+                }
+            }
+        }
+
+        static public int ExtGcd(int a, int b, ref int x, ref int y)
+        {
+            int d = a;
+            if (b != 0)
+            {
+                d = ExtGcd(b, a % b, ref y, ref x);
+                y -= (a / b) * x;
+            }
+            else
+            {
+                x = 1;
+                y = 0;
+            }
+            return d;
+        }
+
+        static public int Gcd(int a, int b)
+        {
+            if (b == 0) return a;
+            var p = a > b ? a : b;
+            return Gcd(b, p % b);
+        }
+
         static public void DisplayIEnumContents<T>(IEnumerable<T> EnumParam)
         {
             Console.WriteLine(string.Join(",", EnumParam.ToArray()));
