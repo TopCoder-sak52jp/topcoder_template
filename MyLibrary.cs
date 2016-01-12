@@ -157,35 +157,51 @@ namespace topcoder_template_test
         }
     }
 
-    /// <summary>
-    /// NOT COMPLETED
-    /// </summary>
-    public class Bounds<T> where T: IComparable
-    {
-        public int LowerBound(IList<T> enumParameter, T target)
-        {
-            int l = 0;
-            int r = enumParameter.Count - 1;
-
-            while (r > l)
-            {
-                int m = (l + r) / 2;
-                if (enumParameter[m].CompareTo(target) < 0)
-                {
-                    l = m + 1;
-                }
-                else
-                {
-                    r = m - 1;
-                }
-            }
-
-            return l;
-        }
-    }
 
     static public class MyLib
     {
+        public static int LowerBound(int[] ar, int val)
+        {
+            var lb = -1;
+            var ub = ar.Length;
+
+            while (ub - lb > 1)
+            {
+                var mid = (lb + ub) / 2;
+                if (ar[mid] >= val)
+                {
+                    ub = mid;
+                }
+                else
+                {
+                    lb = mid;
+                }
+            }
+
+            return ub;
+        }
+
+        public static int UpperBound(int[] ar, int val)
+        {
+            var lb = -1;
+            var ub = ar.Length;
+
+            while (ub - lb > 1)
+            {
+                var mid = (lb + ub) / 2;
+                if (ar[mid] <= val)
+                {
+                    lb = mid;
+                }
+                else
+                {
+                    ub = mid;
+                }
+            }
+
+            return lb + 1;
+        }
+        
         static public ulong ModPow(ulong x, ulong n, ulong mod)
         {
             ulong ret = 1;
