@@ -11,7 +11,7 @@ namespace topcoder_template_test
         const double EPS = 10E-17;
 
         /// <summary>
-        /// get linear regression result
+        /// get linear regression result(Least Square Method)
         /// (theta0 + theta1 * x1 + theta2 * x2 ... = y)
         /// </summary>
         /// <param name="x">training sets(data, two-dimentional)</param>

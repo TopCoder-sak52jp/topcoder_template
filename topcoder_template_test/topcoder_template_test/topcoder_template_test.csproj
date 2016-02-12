@@ -45,6 +45,12 @@
     <Compile Include="..\..\MyLibrary.cs">
       <Link>MyLibrary.cs</Link>
     </Compile>
+    <Compile Include="..\..\MyLibrary_Matrix.cs">
+      <Link>MyLibrary_Matrix.cs</Link>
+    </Compile>
+    <Compile Include="..\..\MyLibrary_ML.cs">
+      <Link>MyLibrary_ML.cs</Link>
+    </Compile>
     <Compile Include="..\..\MyLibrary_vect.cs">
       <Link>MyLibrary_vect.cs</Link>
     </Compile>
@@ -52,6 +58,7 @@
     <Compile Include="Dijkstra_Tests.cs" />
     <Compile Include="FordFulkerson_Tests.cs" />
     <Compile Include="Kruskal_Tests.cs" />
+    <Compile Include="ML_Tests.cs" />
     <Compile Include="PriorityQueue_Tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
