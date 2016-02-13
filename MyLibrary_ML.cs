@@ -8,7 +8,7 @@ namespace topcoder_template_test
 {
     public static class LinearRegression
     {
-        const double EPS = 10E-17;
+        const double EPS = 10E-10;
 
         /// <summary>
         /// get linear regression result(Least Square Method)
@@ -35,19 +35,28 @@ namespace topcoder_template_test
         static Matrix GetResult_GradientDescent(Matrix x, Matrix y, double alpha)
         {
             var theta = new Matrix(x.ColNum, 1);
-            var prevCost = -0.1;
             while(true)
             {
                 var x_mux_theta_minus_y = (x * theta) - y;
+                var diff = ((alpha / x.RowNum) * x.Transpose()) * x_mux_theta_minus_y;
+                if (AllZero(diff)) break;
 
-                var cost = (x_mux_theta_minus_y.Transpose() * x_mux_theta_minus_y)[0, 0];
-                if (Math.Abs(prevCost - cost) < EPS) break;
-                prevCost = cost;
-
-                theta = theta - ((alpha / x.RowNum) * x.Transpose()) * x_mux_theta_minus_y;
+                theta = theta - diff;
             }
 
             return theta;
+        }
+
+        static bool AllZero(Matrix matrix)
+        {
+            for (int row = 0; row < matrix.RowNum; row++)
+            {
+                for (int col = 0; col < matrix.ColNum; col++)
+                {
+                    if (Math.Abs(matrix[row, col]) > EPS) return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
