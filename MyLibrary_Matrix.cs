@@ -44,15 +44,44 @@ namespace topcoder_template_test
             {
                 for (int col = 0; col < m1.ColNum; col++)
                 {
-                    ret[row, col] = m1[row, col] + m2._value[row, col];
+                    ret[row, col] = m1[row, col] + m2[row, col];
                 }
             }
             return ret;
         }
 
+        public static Matrix operator +(double p, Matrix m1)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = m1[row, col] + p;
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator +(Matrix m1, double p)
+        {
+            return p + m1;
+        }
+
         public static Matrix operator -(Matrix m1, Matrix m2)
         {
             return m1 + (-1 * m2);
+        }
+
+        public static Matrix operator -(Matrix m1, double p)
+        {
+            return m1 + (-1 * p);
+        }
+
+        public static Matrix operator -(double p, Matrix m1)
+        {
+            return p + (m1 * -1);
         }
 
         public static Matrix operator *(Matrix m1, double p)
@@ -63,7 +92,7 @@ namespace topcoder_template_test
             {
                 for (int col = 0; col < m1.ColNum; col++)
                 {
-                    ret[row, col] = m1[row, col] * p;
+                    ret[row, col] = p == 0.0 ? 0.0 : m1[row, col] * p;
                 }
             }
             return ret;
@@ -87,10 +116,80 @@ namespace topcoder_template_test
 
                     for (int idx = 0; idx < m1.ColNum; idx++)
                     {
-                        sum += m1[row, idx] * m2[idx, col];
+                        sum += (m1[row, idx] == 0.0 || m2[idx, col] == 0.0) ? 0.0 : m1[row, idx] * m2[idx, col];
                     }
 
                     ret[row, col] = sum;
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator /(Matrix m1, double p)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = m1[row, col] / p;
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator /(double p, Matrix m1)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = p / m1[row, col];
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator /(Matrix m1, Matrix m2)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = m1[row, col] / m2[row, col];
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator ^(double p, Matrix m1)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = Math.Pow(p, m1[row, col]);
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix operator ^(Matrix m1, double p)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret[row, col] = Math.Pow(m1[row, col], p);
                 }
             }
             return ret;
@@ -112,7 +211,7 @@ namespace topcoder_template_test
         public Matrix Inverse()
         {
             if (RowNum != ColNum) throw new InvalidOperationException("Rows and columns must have the same number of values.");
-            var ret = Matrix.GetIdentityMatrix(RowNum);
+            var ret = Matrix.Eye(RowNum);
 
             var wk = this.Clone();
             for (int targetRow = 0; targetRow < RowNum; targetRow++)
@@ -158,11 +257,110 @@ namespace topcoder_template_test
             return new Matrix(value);
         }
 
-        public static Matrix GetIdentityMatrix(int n)
+        public static Matrix Eye(int n)
         {
             var ret = new Matrix(n, n);
             for (int i = 0; i < n; i++) ret[i, i] = 1;
             return ret;
+        }
+
+        public Matrix Mean()
+        {
+            var ret = new Matrix(1, ColNum);
+            if (RowNum == 0) return ret;
+
+            for (int col = 0; col < ColNum; col++)
+            {
+                var sum = 0.0;
+                for (int row = 0; row < RowNum; row++)
+                {
+                    sum += this[row, col];
+                }
+                ret[0, col] = (sum / RowNum);
+            }
+
+            return ret;
+        }
+
+        public Matrix Std()
+        {
+            var ret = new Matrix(1, ColNum);
+            if (RowNum == 0) return ret;
+
+            for (int col = 0; col < ColNum; col++)
+            {
+                var sum = 0.0;
+                for (int row = 0; row < RowNum; row++)
+                {
+                    sum += this[row, col];
+                }
+                var avg = (sum / RowNum);
+
+                var stdDiv = 0.0;
+                for (int row = 0; row < RowNum; row++)
+                {
+                    stdDiv += (this[row, col] - avg) * (this[row, col] - avg);
+                }
+                stdDiv /= (RowNum == 1 ? 1 : RowNum - 1);
+                stdDiv = Math.Sqrt(stdDiv);
+
+                ret[0, col] = stdDiv;
+            }
+
+            return ret;
+        }
+
+        public Matrix Log()
+        {
+            var ret = this.Clone();
+
+            for (int row = 0; row < RowNum; row++)
+            {
+                for (int col = 0; col < ColNum; col++)
+                {
+                    ret[row, col] = Math.Log(this[row, col]);
+                }
+            }
+
+            return ret;
+        }
+
+        public double Sum()
+        {
+            var ret = 0.0;
+            for (int row = 0; row < RowNum; row++)
+            {
+                for (int col = 0; col < ColNum; col++)
+                {
+                    ret += this[row, col];
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// return tuple of [NormalizedValues, mu, sigma]
+        /// </summary>
+        public Tuple<Matrix, Matrix, Matrix> NormalizeFeature(bool ignoreFirstCol = true)
+        {
+            var xNorm = this.Clone();
+            var mu = this.Mean();
+            var sigma = this.Std();
+
+            //xNorm -= mu;
+            //xNorm /= sigma;
+            for (int col = 0; col < ColNum; col++)
+            {
+                if (col == 0 && ignoreFirstCol) continue;
+                for (int row = 0; row < xNorm.RowNum; row++)
+                {
+                    xNorm[row, col] -= mu[0, col];
+                    if (sigma[0, col] != 0)
+                        xNorm[row, col] /= sigma[0, col];
+                }
+            }
+
+            return new Tuple<Matrix, Matrix, Matrix>(xNorm, mu, sigma);
         }
     }
 }
