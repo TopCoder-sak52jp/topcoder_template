@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "topcoder_template_test", "topcoder_template_test\topcoder_template_test.csproj", "{B90D1623-7568-48B0-860B-C04E8A814E6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML", "ML\ML.csproj", "{2A6BD50F-094D-4473-934D-0D008575373D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B90D1623-7568-48B0-860B-C04E8A814E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B90D1623-7568-48B0-860B-C04E8A814E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B90D1623-7568-48B0-860B-C04E8A814E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A6BD50F-094D-4473-934D-0D008575373D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A6BD50F-094D-4473-934D-0D008575373D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A6BD50F-094D-4473-934D-0D008575373D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A6BD50F-094D-4473-934D-0D008575373D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
