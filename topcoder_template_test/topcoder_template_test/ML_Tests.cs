@@ -47,5 +47,43 @@ namespace topcoder_template_test
             Assert.IsTrue(Math.Abs(ret[1, 0] - 2.1) < EPS);
             Assert.IsTrue(Math.Abs(ret[2, 0] + 0.03) < EPS);
         }
+
+        [TestMethod]
+        public void NeuralNetworkTest_ForwardProp()
+        {
+            //XNOR
+
+            var nn = new NeuralNetwork(3, new int[] { 2, 2, 1 });
+            nn.Thetas[0][0, 0] = -30;
+            nn.Thetas[0][0, 1] = 20;
+            nn.Thetas[0][0, 2] = 20;
+            nn.Thetas[0][1, 0] = 10;
+            nn.Thetas[0][1, 1] = -20;
+            nn.Thetas[0][1, 2] = -20;
+            nn.Thetas[1][0, 0] = -10;
+            nn.Thetas[1][0, 1] = 20;
+            nn.Thetas[1][0, 2] = 20;
+
+            var input = new Matrix(2, 1);
+            input[0, 0] = 0;
+            input[1, 0] = 1;
+            var result = nn.ForwardProp(input);
+            Assert.IsTrue(result[0, 0] < 0.01);
+
+            input[0, 0] = 1;
+            input[1, 0] = 0;
+            result = nn.ForwardProp(input);
+            Assert.IsTrue(result[0, 0] < 0.01);
+
+            input[0, 0] = 1;
+            input[1, 0] = 1;
+            result = nn.ForwardProp(input);
+            Assert.IsTrue(result[0, 0] >= 0.99);
+
+            input[0, 0] = 0;
+            input[1, 0] = 0;
+            result = nn.ForwardProp(input);
+            Assert.IsTrue(result[0, 0] >= 0.99);
+        }
     }
 }

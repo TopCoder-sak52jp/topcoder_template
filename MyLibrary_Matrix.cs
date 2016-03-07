@@ -125,6 +125,32 @@ namespace topcoder_template_test
             return ret;
         }
 
+        /// <summary>
+        /// calc [ a b c ] x [ d; e ] as
+        ///      [ a b c ] x [ 1; d; e]
+        /// </summary>
+        public static Matrix MuxWithBias(Matrix m1, Matrix m2)
+        {
+            var ret = new Matrix(m1.RowNum, m2.ColNum);
+
+            for (int row = 0; row < ret.RowNum; row++)
+            {
+                for (int col = 0; col < ret.ColNum; col++)
+                {
+                    var sum = 0.0;
+
+                    for (int idx = 0; idx < m1.ColNum; idx++)
+                    {
+                        sum += (idx == 0) ? m1[row, idx] :                             
+                            (m1[row, idx] == 0.0 || m2[idx - 1, col] == 0.0) ? 0.0 : m1[row, idx] * m2[idx - 1, col];
+                    }
+
+                    ret[row, col] = sum;
+                }
+            }
+            return ret;
+        }
+
         public static Matrix operator /(Matrix m1, double p)
         {
             var ret = new Matrix(m1.RowNum, m1.ColNum);
@@ -361,6 +387,17 @@ namespace topcoder_template_test
             }
 
             return new Tuple<Matrix, Matrix, Matrix>(xNorm, mu, sigma);
+        }
+
+        public static Matrix GetSigmoid(Matrix z)
+        {
+            var a = Math.E ^ z;
+            var b = 1.0 / a;
+            var c = 1.0 + b;
+            var d = 1.0 / c;
+
+            var ret = 1.0 / (1.0 + (1.0 / (Math.E ^ (z))));
+            return ret;
         }
     }
 }

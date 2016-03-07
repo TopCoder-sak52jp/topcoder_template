@@ -8,15 +8,13 @@ namespace topcoder_template_test
 {
     public static class LogisticRegression
     {
-        const double EPS = 10E-10;
-
-        public static Tuple<Matrix, double[]> GetResult(Matrix x, Matrix y, double alpha, double lambda, int maxItr, bool logCosts=true)
+        public static Tuple<Matrix, double[]> GetResult(Matrix x, Matrix y, double alpha, double lambda, int maxItr, bool logCosts = false)
         {
             var theta = new Matrix(x.ColNum, 1);
             var costs = new List<double>();
             while (maxItr > 0)
             {
-                var h = GetSigmoid(x * theta);
+                var h = Matrix.GetSigmoid(x * theta);
                 var diff = h - y;
 
                 if (logCosts)
@@ -39,24 +37,11 @@ namespace topcoder_template_test
 
             return new Tuple<Matrix, double[]>(theta, costs.ToArray());
         }
-
-        static Matrix GetSigmoid(Matrix z)
-        {
-            var a = Math.E ^ z;
-            var b = 1.0 / a;
-            var c = 1.0 + b;
-            var d = 1.0 / c;
-
-            var ret = 1.0 / ( 1.0 + (1.0 / (Math.E ^ ( z ))) );
-            return ret;
-        }
     }
 
     public static class LinearRegression
     {
-        const double EPS = 10E-10;
-
-        public static Tuple<Matrix, double[]> GetResult_NormalEquation(Matrix x, Matrix y, double lambda, bool logCosts = true)
+        public static Tuple<Matrix, double[]> GetResult_NormalEquation(Matrix x, Matrix y, double lambda, bool logCosts = false)
         {
             var xT = x.Transpose();
             var l = Matrix.Eye(x.ColNum);
@@ -101,22 +86,22 @@ namespace topcoder_template_test
 
     public class NeuralNetwork
     {
-        int _numLayers;
-        int[] _numNeurons;
-        Matrix[] _thetas;
-
+        public Matrix[] Thetas { get; set; }
+        public int NumLayers { get; set; }
+        public int[] NumNeurons { get; set; }
+        
         public NeuralNetwork(int numLayers, int[] numNeurons)
         {
-            _numLayers = numLayers;
-            _numNeurons = numNeurons;
+            NumLayers = numLayers;
+            NumNeurons = numNeurons;
 
-            _thetas = new Matrix[numLayers - 1];
+            Thetas = new Matrix[numLayers - 1];
 
             for(int idx=0; idx < numLayers - 1; idx++)
             {
-                var matrix = new Matrix(numNeurons[idx], numNeurons[idx+1]);
+                var matrix = new Matrix(numNeurons[idx+1], numNeurons[idx] + 1);
                 Randomize(matrix);
-                _thetas[idx] = matrix;
+                Thetas[idx] = matrix;
             }
         }
 
@@ -134,10 +119,10 @@ namespace topcoder_template_test
 
         void Randomize()
         {
-            foreach(var matrix in _thetas) Randomize(matrix);
+            foreach(var matrix in Thetas) Randomize(matrix);
         }
 
-        public void Learn(double[][] input, double[][] output)
+        public void Learn(Matrix[] input, Matrix[] output)
         {
             Randomize();
 
@@ -147,10 +132,27 @@ namespace topcoder_template_test
             }
         }
 
-        void Learn(double[] input, double[] output)
+        void Learn(Matrix input, Matrix output)
         {
-            //ForwardProp(input);
-            //BackProp(output);
+            var values = ForwardProp(input);
+            //BackProp(output, values);
+        }
+
+        /// <summary>
+        /// execute forward prop.
+        /// </summary>
+        /// <returns>last layer values</returns>
+        public Matrix ForwardProp(Matrix input)
+        {
+            Matrix ret = input;
+
+            for (int thetaIdx = 0; thetaIdx < Thetas.Length; thetaIdx++)
+            {
+                var theta = Thetas[thetaIdx];
+                ret = Matrix.GetSigmoid(Matrix.MuxWithBias(theta, ret));
+            }
+
+            return ret;
         }
     }
 }

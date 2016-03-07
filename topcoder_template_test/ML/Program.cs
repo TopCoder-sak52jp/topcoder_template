@@ -263,12 +263,13 @@ namespace ML
         static void NeuralNetworkTest()
         {
             Console.WriteLine("**Neural Network**");
-            
-            var nn = new NeuralNetwork(4, new int[] {  3, 4, 2, 1 });
-            nn.Learn(
-                    new double[][] { new double[] { 1, 2, 3 }, new double[] { 4, 5, 6 } },
-                    new double[][] { new double[] { 1 }, new double[] { 4 } }                
-                );
+            var nn = new NeuralNetwork(3, new int[] { 2, 2, 1 });
+
+            var input = new Matrix(2, 1);
+            input[0, 0] = 0;
+            input[1, 0] = 1;
+
+            var result = nn.ForwardProp(input);
         }
 
         static void Main(string[] args)
