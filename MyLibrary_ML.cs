@@ -117,42 +117,106 @@ namespace topcoder_template_test
             }
         }
 
-        void Randomize()
+        public void RandomizeThetas()
         {
             foreach(var matrix in Thetas) Randomize(matrix);
         }
 
-        public void Learn(Matrix[] input, Matrix[] output)
+        public void Learn(Matrix[] input, Matrix[] output, double alpha, double lambda, int maxItr)
         {
-            Randomize();
-
-            for(int idx=0; idx<input.GetLength(0); idx++)
+            while (maxItr > 0)
             {
-                Learn(input[idx], output[idx]);
+                var L_deltas = InitializeLDeltas();
+
+                for (int idx = 0; idx < input.GetLength(0); idx++)
+                {
+                    var values = ForwardProp(input[idx]);
+                    BackProp(L_deltas, output[idx], values);
+                }
+
+                UpdateThetas(input.GetLength(0), L_deltas, alpha, lambda);
+                maxItr--;
             }
         }
 
-        void Learn(Matrix input, Matrix output)
+        Matrix[] InitializeLDeltas()
         {
-            var values = ForwardProp(input);
-            //BackProp(output, values);
+            var ret = new Matrix[Thetas.Length];
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = new Matrix(Thetas[i].RowNum, Thetas[i].ColNum);
+            }
+            return ret;
+        }
+
+        void UpdateThetas(int m, Matrix[] L_deltas, double alpha, double lambda)
+        {
+            if (m == 0) return;
+            for (int l = 0; l < Thetas.Length; l++)
+            {
+                for (int i = 0; i < Thetas[l].RowNum; i++)
+                {
+                    for (int j = 0; j < Thetas[l].ColNum; j++)
+                    {
+                        var d = j == 0 ? L_deltas[l][i, j] / (double)m :
+                                         (L_deltas[l][i, j] + lambda * (Thetas[l][i, j])) / (double)m;
+                        Thetas[l][i, j] -= alpha * d;
+                    }
+                }
+            }
         }
 
         /// <summary>
         /// execute forward prop.
         /// </summary>
-        /// <returns>last layer values</returns>
-        public Matrix ForwardProp(Matrix input)
+        /// <returns>values of each node</returns>
+        public Matrix[] ForwardProp(Matrix input)
         {
-            Matrix ret = input;
+            var ret = new List<Matrix>();
+            ret.Add(input);
 
+            var current = input;
             for (int thetaIdx = 0; thetaIdx < Thetas.Length; thetaIdx++)
             {
                 var theta = Thetas[thetaIdx];
-                ret = Matrix.GetSigmoid(Matrix.MuxWithBias(theta, ret));
+                current = Matrix.GetSigmoid(Matrix.MuxWithBias(theta, current));
+
+                ret.Add(current);
             }
 
-            return ret;
+            return ret.ToArray();
+        }
+
+        void BackProp(Matrix[] L_deltas, Matrix output, Matrix[] a)
+        {
+            var l = Thetas.Length;
+            var S_deltas = new Matrix[Thetas.Length + 1];
+            S_deltas[l] = a[l] - output;
+            l--;
+
+            while (l >= 1)
+            {
+                var aa = Thetas[l].Transpose() * S_deltas[l + 1];
+                var bb = a[l];
+                var cc = 1 - a[l];
+
+                var dd = Matrix.MuxWithBias_ElementWise(aa, bb);
+                var ee = Matrix.MuxWithBias_ElementWise(dd, cc);
+
+                S_deltas[l] = ee;
+                l--;
+            }
+
+            for (l = 0; l < L_deltas.Length; l++)
+            {
+                for (int i = 0; i < L_deltas[l].RowNum; i++)
+                {
+                    for (int j = 0; j < L_deltas[l].ColNum; j++)
+                    {
+                        L_deltas[l][i, j] += (j == 0 ? 1.0 : a[l][j - 1, 0]) * S_deltas[l + 1][i, 0];
+                    }
+                }
+            }
         }
     }
 }

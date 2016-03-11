@@ -269,7 +269,12 @@ namespace ML
             input[0, 0] = 0;
             input[1, 0] = 1;
 
-            var result = nn.ForwardProp(input);
+            var output = new Matrix(1, 1);
+            output[0, 0] = 0;
+
+            nn.Learn(new Matrix[]{ input }, new Matrix[]{ output }, 0.1, 0.1, 1);
+
+
         }
 
         static void Main(string[] args)

@@ -68,22 +68,22 @@ namespace topcoder_template_test
             input[0, 0] = 0;
             input[1, 0] = 1;
             var result = nn.ForwardProp(input);
-            Assert.IsTrue(result[0, 0] < 0.01);
+            Assert.IsTrue(result.Last()[0, 0] < 0.01);
 
             input[0, 0] = 1;
             input[1, 0] = 0;
             result = nn.ForwardProp(input);
-            Assert.IsTrue(result[0, 0] < 0.01);
+            Assert.IsTrue(result.Last()[0, 0] < 0.01);
 
             input[0, 0] = 1;
             input[1, 0] = 1;
             result = nn.ForwardProp(input);
-            Assert.IsTrue(result[0, 0] >= 0.99);
+            Assert.IsTrue(result.Last()[0, 0] >= 0.99);
 
             input[0, 0] = 0;
             input[1, 0] = 0;
             result = nn.ForwardProp(input);
-            Assert.IsTrue(result[0, 0] >= 0.99);
+            Assert.IsTrue(result.Last()[0, 0] >= 0.99);
         }
     }
 }
