@@ -107,12 +107,13 @@ namespace topcoder_template_test
 
         void Randomize(Matrix matrix)
         {
+            const double epsilon_init = 0.12;
             var rnd = new Random();
             for(int row=0; row<matrix.RowNum; row++)
             {
                 for(int col=0; col<matrix.ColNum; col++)
                 {
-                    matrix[row, col] = rnd.NextDouble() * ( rnd.Next() % 2 == 1 ? -1.0 : 1.0 );
+                    matrix[row, col] = rnd.NextDouble() * 2 * epsilon_init - epsilon_init;
                 }
             }
         }
@@ -130,8 +131,9 @@ namespace topcoder_template_test
 
                 for (int idx = 0; idx < input.GetLength(0); idx++)
                 {
-                    var values = ForwardProp(input[idx]);
-                    BackProp(L_deltas, output[idx], values);
+                    Matrix[] z = null;
+                    var values = ForwardProp(input[idx], ref z);
+                    BackProp(L_deltas, output[idx], values, z);
                 }
 
                 UpdateThetas(input.GetLength(0), L_deltas, alpha, lambda);
@@ -170,52 +172,44 @@ namespace topcoder_template_test
         /// execute forward prop.
         /// </summary>
         /// <returns>values of each node</returns>
-        public Matrix[] ForwardProp(Matrix input)
+        public Matrix[] ForwardProp(Matrix input, ref Matrix[] z)
         {
+            var zret = new List<Matrix>();
+            zret.Add(null);
             var ret = new List<Matrix>();
-            ret.Add(input);
+            ret.Add(Matrix.AddOneToTopRow(input));
 
             var current = input;
             for (int thetaIdx = 0; thetaIdx < Thetas.Length; thetaIdx++)
             {
                 var theta = Thetas[thetaIdx];
-                current = Matrix.GetSigmoid(Matrix.MuxWithBias(theta, current));
+                var zValue = Matrix.MuxWithBias(theta, current);
 
-                ret.Add(current);
+                current = Matrix.GetSigmoid(zValue);
+
+                zret.Add(thetaIdx == Thetas.Length - 1 ? zValue : Matrix.AddOneToTopRow(zValue));
+                ret.Add(thetaIdx == Thetas.Length - 1 ? current : Matrix.AddOneToTopRow(current));
             }
 
+            z = zret.ToArray();
             return ret.ToArray();
         }
 
-        void BackProp(Matrix[] L_deltas, Matrix output, Matrix[] a)
+        void BackProp(Matrix[] L_deltas, Matrix output, Matrix[] a, Matrix[] z)
         {
             var l = Thetas.Length;
             var S_deltas = new Matrix[Thetas.Length + 1];
             S_deltas[l] = a[l] - output;
+            L_deltas[l - 1] += S_deltas[l] * a[l - 1].Transpose();
             l--;
 
             while (l >= 1)
             {
-                var aa = Thetas[l].Transpose() * S_deltas[l + 1];
-                var bb = a[l];
-                var cc = 1 - a[l];
-
-                var dd = Matrix.MuxWithBias_ElementWise(aa, bb);
-                var ee = Matrix.MuxWithBias_ElementWise(dd, cc);
-
-                S_deltas[l] = ee;
+                var sigmoidGradient = Matrix.ElementWiseMux(Matrix.GetSigmoid(z[l]), Matrix.GetSigmoid(1 - z[l]));
+                S_deltas[l] = Matrix.ElementWiseMux(Thetas[l].Transpose() * S_deltas[l + 1], sigmoidGradient);
+                S_deltas[l] = Matrix.RemoveTopRow(S_deltas[l]);
+                L_deltas[l - 1] += S_deltas[l] * a[l - 1].Transpose();
                 l--;
-            }
-
-            for (l = 0; l < L_deltas.Length; l++)
-            {
-                for (int i = 0; i < L_deltas[l].RowNum; i++)
-                {
-                    for (int j = 0; j < L_deltas[l].ColNum; j++)
-                    {
-                        L_deltas[l][i, j] += (j == 0 ? 1.0 : a[l][j - 1, 0]) * S_deltas[l + 1][i, 0];
-                    }
-                }
             }
         }
     }

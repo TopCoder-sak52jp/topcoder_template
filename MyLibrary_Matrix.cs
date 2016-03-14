@@ -169,6 +169,48 @@ namespace topcoder_template_test
             return ret;
         }
 
+        public static Matrix ElementWiseMux(Matrix m1, Matrix m2)
+        {
+            var ret = new Matrix(m1.RowNum, m1.ColNum);
+
+            for (int row = 0; row < ret.RowNum; row++)
+            {
+                for (int col = 0; col < ret.ColNum; col++)
+                {
+                    ret[row, col] = m1[row, col] * m2[row, col];
+                }
+            }
+            return ret;
+        }
+
+
+        public static Matrix AddOneToTopRow(Matrix m1)
+        {
+            var ret = new Matrix(m1.RowNum + 1, m1.ColNum);
+
+            for (int row = 0; row < ret.RowNum; row++)
+            {
+                for (int col = 0; col < ret.ColNum; col++)
+                {
+                    ret[row, col] = row == 0 ? 1.0 : m1[row - 1, col];
+                }
+            }
+            return ret;
+        }
+
+        public static Matrix RemoveTopRow(Matrix m1)
+        {
+            var ret = new Matrix(m1.RowNum - 1, m1.ColNum);
+
+            for (int row = 0; row < ret.RowNum; row++)
+            {
+                for (int col = 0; col < ret.ColNum; col++)
+                {
+                    ret[row, col] = m1[row + 1, col];
+                }
+            }
+            return ret;
+        }
 
         public static Matrix operator /(Matrix m1, double p)
         {
