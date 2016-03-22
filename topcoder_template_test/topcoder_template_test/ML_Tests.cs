@@ -85,5 +85,53 @@ namespace topcoder_template_test
             result = nn.ForwardProp(input);
             Assert.IsTrue(result.Last()[0, 0] >= 0.99);
         }
+
+        [TestMethod]
+        public void NeuralNetworkTest_Gradients()
+        {
+            double lambda = 0;
+
+            var nn = new NeuralNetwork(3, new int[] { 2, 1, 2 });
+            var theta1 = new Matrix(1, 3);
+            theta1[0, 0] = 0.01;
+            theta1[0, 1] = 0.02;
+            theta1[0, 2] = 0.03;
+
+            var theta2 = new Matrix(2, 2);
+            theta2[0, 0] = 0.02;
+            theta2[0, 1] = 0.03;
+            theta2[1, 0] = 0.05;
+            theta2[1, 1] = 0.04;
+
+            nn.Thetas = new Matrix[] { theta1, theta2 };
+
+            var x1 = new Matrix(2, 1);
+            x1[0, 0] = 0.08;
+            x1[1, 0] = 0.07;
+
+            var x2 = new Matrix(2, 1);
+            x2[0, 0] = 0.06;
+            x2[1, 0] = 0.05;
+
+            var x = new Matrix[] { x1, x2 };
+
+            var y1 = new Matrix(2, 1);
+            y1[0, 0] = 0;
+            y1[1, 0] = 1;
+
+            var y2 = new Matrix(2, 1);
+            y2[0, 0] = 1;
+            y2[1, 0] = 0;
+
+            var y = new Matrix[] { y1, y2 };
+
+            var numgrads = nn.GetNumericGradients(x, y);
+            var grads = nn.GetGrad(new Matrix[] { theta1, theta2 }, x, y, x.Length, lambda);
+
+            var ret = numgrads.Sum(n => n.Sum()) - grads.Sum(n => n.Sum());
+
+
+            Assert.IsTrue(ret < 0.0000001);
+        }
     }
 }

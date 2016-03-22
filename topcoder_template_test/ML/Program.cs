@@ -289,7 +289,7 @@ namespace ML
             //Console.WriteLine();
             //Console.WriteLine();
 
-            NeuralNetworkTest();
+            //NeuralNetworkTest();
 
             Console.ReadLine();
         }

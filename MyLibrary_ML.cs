@@ -89,10 +89,6 @@ namespace topcoder_template_test
         public Matrix[] Thetas { get; set; }
         public int NumLayers { get; set; }
         public int[] NumNeurons { get; set; }
-
-        //for debug
-        bool _checkGradients = true;    //false
-        List<string> _checkGradientsResults = new List<string>();
         
         public NeuralNetwork(int numLayers, int[] numNeurons)
         {
@@ -131,29 +127,34 @@ namespace topcoder_template_test
         {
             while (maxItr > 0)
             {
-                var L_deltas = InitializeLDeltas();
-
-                for (int idx = 0; idx < input.GetLength(0); idx++)
-                {
-                    Matrix[] z = null;
-                    var values = ForwardProp(input[idx], Thetas, ref z);
-                    BackProp(L_deltas, output[idx], values, z);
-                }
-
-                var grad = GetGrad(L_deltas, input.Length, lambda);
-
+                var grad = GetGrad(Thetas, input, output, input.Length, lambda);
                 UpdateThetas(input.GetLength(0), grad, alpha, lambda, input, output);
                 maxItr--;
             }
         }
 
-        Matrix[] GetGrad(Matrix[] L_deltas, int m, double lambda)
+        public Matrix[] GetGrad(Matrix[] thetas, Matrix[] input, Matrix[] output, int m, double lambda)
+        {
+            var L_deltas = InitializeLDeltas();
+
+            for (int idx = 0; idx < input.GetLength(0); idx++)
+            {
+                Matrix[] z = null;
+                var values = ForwardProp(input[idx], thetas, ref z);
+                BackProp(L_deltas, output[idx], values, z);
+            }
+
+            var grad = GetGrad(thetas, L_deltas, input.Length, lambda);
+            return grad;
+        }
+
+        Matrix[] GetGrad(Matrix[] thetas, Matrix[] L_deltas, int m, double lambda)
         {
             var ret = new List<Matrix>();
 
-            for (int idx = 0; idx < Thetas.Length; idx++)
+            for (int idx = 0; idx < thetas.Length; idx++)
             {
-                var wk_theta = Thetas[idx].Clone();
+                var wk_theta = thetas[idx].Clone();
                 for (int col = 0; col < wk_theta.ColNum; col++)
                 {
                     wk_theta[0, col] = 0.0;
@@ -178,32 +179,19 @@ namespace topcoder_template_test
 
         void UpdateThetas(int m, Matrix[] grads, double alpha, double lambda, Matrix[] input, Matrix[] output)
         {
-            Matrix[] numericGradients = null;
-
-            if (_checkGradients)
-                numericGradients = GetNumericGradients(input, output);
-
             if (m == 0) return;
             for (int l = 0; l < Thetas.Length; l++)
             {
                 Thetas[l] = Thetas[l] - alpha * grads[l];
-
-                if (_checkGradients)
-                {
-                    var diff = (numericGradients[l] - grads[l]).NormalizeFeature().Item1 / (numericGradients[l] + grads[l]).NormalizeFeature().Item1;
-                    var sumDiff = diff.Sum();
-
-                    //sumDiff should be very small!!!
-                }
-
             }
         }
 
-        Matrix[] GetNumericGradients(Matrix[] input, Matrix[] output)
+        public Matrix[] GetNumericGradients(Matrix[] input, Matrix[] output)
         {
             var ret = new Matrix[Thetas.Length];
+            var thetas = this.Thetas.ToArray();
 
-            for (int idx = 0; idx < Thetas.Length; idx++)
+            for (int idx = 0; idx < thetas.Length; idx++)
             {
                 ret[idx] = GetNumericGradient(idx, input, output);
             }
@@ -223,15 +211,17 @@ namespace topcoder_template_test
             {
                 for (int col = 0; col < diffMat.ColNum; col++)
                 {
-                    thetas[idx][row, col] = thetas[idx][row, col] - e;
+                    var orgValue = thetas[idx][row, col];
+
+                    thetas[idx][row, col] = orgValue - e;
                     var loss1 = J(thetas, input, output);
 
-                    thetas[idx][row, col] = thetas[idx][row, col] + e;
+                    thetas[idx][row, col] = orgValue + e;
                     var loss2 = J(thetas, input, output);
 
                     ret[row, col] = (loss2 - loss1) / (2.0 * e);
 
-                    thetas[idx][row, col] -= e;
+                    thetas[idx][row, col] = orgValue;
                 }
             }
 
@@ -248,7 +238,7 @@ namespace topcoder_template_test
                 var ak = ForwardProp(input[inputIdx], thetas, ref z).Last();
                 var y = output[inputIdx];
 
-                var sum = -1.0 * y * ak.Log() - (1.0 - y) * (1 - ak).Log();
+                var sum = -1.0 * Matrix.ElementWiseMux(y, ak.Log()) - Matrix.ElementWiseMux((1.0 - y), (1 - ak).Log());
                 ret += sum.Sum();
             }
 
@@ -257,27 +247,37 @@ namespace topcoder_template_test
             return ret;
         }
 
+        public Matrix[] ForwardProp(Matrix input)
+        {
+            Matrix[] z = null;
+            return ForwardProp(input, this.Thetas, ref z);
+        }
+
         /// <summary>
         /// execute forward prop.
         /// </summary>
         /// <returns>values of each node</returns>
-        public Matrix[] ForwardProp(Matrix input, Matrix[] thetas, ref Matrix[] z)
+        Matrix[] ForwardProp(Matrix input, Matrix[] thetas, ref Matrix[] z)
         {
             var zret = new List<Matrix>();
             zret.Add(null);
             var ret = new List<Matrix>();
-            ret.Add(Matrix.AddOneToTopRow(input));
 
-            var current = input;
+            var inputWithBias = Matrix.AddOneToTopRow(input);
+            ret.Add(inputWithBias);
+
+            var current = inputWithBias;
             for (int thetaIdx = 0; thetaIdx < thetas.Length; thetaIdx++)
             {
                 var theta = thetas[thetaIdx];
-                var zValue = Matrix.MuxWithBias(theta, current);
+                var zValue = theta * current;
 
                 current = Matrix.GetSigmoid(zValue);
 
                 zret.Add(thetaIdx == thetas.Length - 1 ? zValue : Matrix.AddOneToTopRow(zValue));
                 ret.Add(thetaIdx == thetas.Length - 1 ? current : Matrix.AddOneToTopRow(current));
+
+                current = Matrix.AddOneToTopRow(current);
             }
 
             z = zret.ToArray();
@@ -294,7 +294,7 @@ namespace topcoder_template_test
 
             while (l >= 1)
             {
-                var sigmoidGradient = Matrix.ElementWiseMux(Matrix.GetSigmoid(z[l]), Matrix.GetSigmoid(1 - z[l]));
+                var sigmoidGradient = Matrix.ElementWiseMux(Matrix.GetSigmoid(z[l]), 1 - Matrix.GetSigmoid(z[l]));
                 S_deltas[l] = Matrix.ElementWiseMux(Thetas[l].Transpose() * S_deltas[l + 1], sigmoidGradient);
                 S_deltas[l] = Matrix.RemoveTopRow(S_deltas[l]);
                 L_deltas[l - 1] += S_deltas[l] * a[l - 1].Transpose();
