@@ -260,36 +260,67 @@ namespace ML
             return ret;
         }
 
-        static void NeuralNetworkTest()
+        static void NeuralNetworkTest_Example()
         {
-            Console.WriteLine("**Neural Network**");
-            var nn = new NeuralNetwork(3, new int[] { 2, 2, 1 });
+            Console.WriteLine("**Neural Network test (test data from: http://archive.ics.uci.edu/ml/machine-learning-databases/pendigits/)**");
 
-            var input = new Matrix(2, 1);
-            input[0, 0] = 0;
-            input[1, 0] = 1;
+            var nn = new NeuralNetwork(3, new int[] { 16, 16, 10 });
+            nn.RandomizeThetas();
 
-            var output = new Matrix(1, 1);
-            output[0, 0] = 0;
+            //train
+            var trainingDataTuple = GetNNData(TraininData.Data);
+            var inputs = trainingDataTuple.Item1;
+            var outputs = trainingDataTuple.Item2;
 
-            nn.Learn(new Matrix[]{ input }, new Matrix[]{ output }, 0.1, 0.1, 1);
+            //test
+            var testDataTuple = GetNNData(TestData.Data);
+            var test_inputs = testDataTuple.Item1;
+            var test_outputs = testDataTuple.Item2;
 
+            var parameters = nn.FindParameters(inputs, outputs, test_inputs, test_outputs, 5);
 
+            nn.Learn(inputs, outputs, parameters.Item1, parameters.Item2, 5);
+
+            var result = nn.GetResult(test_inputs, test_outputs);
+            var total = result.Item1;
+            var err = result.Item2;
+
+            Console.WriteLine(string.Format("Total:{0}, Error:{1}, Success Rate: {2}", total, err, (double)(total - err) / (double)total));
+        }
+
+        static Tuple<Matrix[], Matrix[]> GetNNData(string str)
+        {
+            var inputs = new List<Matrix>();
+            var outputs = new List<Matrix>();
+            var strSplit = str.Split('\n');
+
+            foreach (var line in strSplit)
+            {
+                var lineValues = line.Split(',').Select(s => Int32.Parse(s)).ToArray();
+                var input = new Matrix(lineValues.Length - 1, 1);
+                var output = new Matrix(10, 1);
+
+                for (int idx = 0; idx < lineValues.Length - 1; idx++)
+                {
+                    input[idx, 0] = lineValues[idx];
+                }
+                output[lineValues.Last(), 0] = 1;
+
+                var norm = input.NormalizeFeature(false);
+                input = norm.Item1;
+
+                inputs.Add(input);
+                outputs.Add(output);
+            }
+
+            return new Tuple<Matrix[], Matrix[]>(inputs.ToArray(), outputs.ToArray());
         }
 
         static void Main(string[] args)
         {
             //LinearTest_Example();
-
-            //Console.WriteLine();
-            //Console.WriteLine();
-
             //LogisticTest_Example();
-
-            //Console.WriteLine();
-            //Console.WriteLine();
-
-            //NeuralNetworkTest();
+            NeuralNetworkTest_Example();
 
             Console.ReadLine();
         }

@@ -259,5 +259,83 @@ namespace topcoder_template_test
                 l--;
             }
         }
+
+        public Tuple<int, int> GetResult(Matrix[] inputs, Matrix[] outputs)
+        {
+            var total = inputs.Length;
+            var err = 0;
+
+            for (int i = 0; i < total; i++)
+            {
+                var result = ForwardProp(inputs[i]).Last();
+                if (result.RowNum == 1) //just 1 or 0
+                {
+                    var r = result[0, 0] >= 0.5;
+                    if(Math.Abs(outputs[i][0, 0] - (r ? 1.0 : 0.0)) > 0.01)
+                    {
+                        err++;
+                    }
+                }
+                else
+                {
+                    //classification
+                    var maxValue = result[0, 0];
+                    var maxIdx = 0;
+                    for (int j = 1; j < result.ColNum; j++)
+                    {
+                        if (maxValue < result[j, 0])
+                        {
+                            maxIdx = j;
+                            maxValue = result[j, 0];
+                        }
+                    }
+
+                    if (outputs[i][maxIdx, 0] != 1)
+                    {
+                        err++;
+                    }
+                }
+
+            }
+
+            return new Tuple<int, int>(err, total);
+        }
+
+        /// <summary>
+        /// return alpha and lambda
+        /// </summary>
+        public Tuple<double, double> FindParameters(Matrix[] inputs, Matrix[] outputs, Matrix[] cross_inputs, Matrix[] cross_outputs, int maxItr)
+        {
+            var alphas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
+            var lambdas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
+            var r_alpha = 0.0;
+            var r_lamda = 0.0;
+            var min_err = Int32.MaxValue;
+
+            for (int i = 0; i < alphas.Length; i++)
+            {
+                for (int j = 0; j < lambdas.Length; j++)
+                {
+                    RandomizeThetas();
+                    var alpha = alphas[i];
+                    var lambda = lambdas[j];
+
+                    Learn(inputs, outputs, alpha, lambda, maxItr);
+                    var resultTuple = GetResult(cross_inputs, cross_outputs);
+
+                    if (resultTuple.Item1 < min_err)
+                    {
+                        r_alpha = alpha;
+                        r_lamda = lambda;
+                        min_err = resultTuple.Item1;
+
+                        if (min_err == 0) break;
+                    }
+                }
+                if (min_err == 0) break;
+            }
+
+            return new Tuple<double, double>(r_alpha, r_lamda);
+        }
     }
 }

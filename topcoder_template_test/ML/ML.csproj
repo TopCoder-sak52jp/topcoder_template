@@ -47,6 +47,8 @@
     <Compile Include="..\..\MyLibrary_ML.cs">
       <Link>MyLibrary_ML.cs</Link>
     </Compile>
+    <Compile Include="pendigits.tes.cs" />
+    <Compile Include="pendigits.tra.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

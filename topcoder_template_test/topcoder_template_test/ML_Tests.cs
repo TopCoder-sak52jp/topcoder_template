@@ -287,6 +287,61 @@ namespace topcoder_template_test
 
             result = nn.ForwardProp(inputs[3]).Last();
             Assert.IsTrue(Math.Abs(result[0, 0] - outputs[3][0, 0]) < EPS);
+
+            var resultTuple = nn.GetResult(inputs.ToArray(), outputs.ToArray());
+            Assert.AreEqual(0, resultTuple.Item1);
+        }
+
+        [TestMethod]
+        public void NeuralNetworkTest_FindParam()
+        {
+            //XNOR
+
+            var nn = new NeuralNetwork(3, new int[] { 2, 2, 1 });
+            nn.RandomizeThetas();
+
+            var inputs = new List<Matrix>();
+            var outputs = new List<Matrix>();
+
+            var input = new Matrix(2, 1);
+            input[0, 0] = 0;
+            input[1, 0] = 1;
+            inputs.Add(input);
+            var output = new Matrix(1, 1);
+            output[0, 0] = 0;
+            outputs.Add(output);
+
+            input = new Matrix(2, 1);
+            input[0, 0] = 1;
+            input[1, 0] = 0;
+            inputs.Add(input);
+            output = new Matrix(1, 1);
+            output[0, 0] = 0;
+            outputs.Add(output);
+
+            input = new Matrix(2, 1);
+            input[0, 0] = 1;
+            input[1, 0] = 1;
+            inputs.Add(input);
+            output = new Matrix(1, 1);
+            output[0, 0] = 1;
+            outputs.Add(output);
+
+            input = new Matrix(2, 1);
+            input[0, 0] = 0;
+            input[1, 0] = 0;
+            inputs.Add(input);
+            output = new Matrix(1, 1);
+            output[0, 0] = 1;
+            outputs.Add(output);
+
+            var parameters = nn.FindParameters(inputs.ToArray(), outputs.ToArray(), inputs.ToArray(), outputs.ToArray(), 50000);
+
+            nn.RandomizeThetas();
+            nn.Learn(inputs.ToArray(), outputs.ToArray(), parameters.Item1, parameters.Item2, 50000);
+
+            var resultTuple = nn.GetResult(inputs.ToArray(), outputs.ToArray());
+            Assert.AreEqual(0, resultTuple.Item1);
         }
     }
 }
