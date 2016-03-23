@@ -133,6 +133,15 @@ namespace topcoder_template_test
             }
         }
 
+        void UpdateThetas(int m, Matrix[] grads, double alpha, double lambda, Matrix[] input, Matrix[] output)
+        {
+            if (m == 0) return;
+            for (int l = 0; l < Thetas.Length; l++)
+            {
+                Thetas[l] = Thetas[l] - alpha * grads[l];
+            }
+        }
+
         public Matrix[] GetGrad(Matrix[] thetas, Matrix[] input, Matrix[] output, int m, double lambda)
         {
             var L_deltas = InitializeLDeltas();
@@ -177,58 +186,7 @@ namespace topcoder_template_test
             return ret;
         }
 
-        void UpdateThetas(int m, Matrix[] grads, double alpha, double lambda, Matrix[] input, Matrix[] output)
-        {
-            if (m == 0) return;
-            for (int l = 0; l < Thetas.Length; l++)
-            {
-                Thetas[l] = Thetas[l] - alpha * grads[l];
-            }
-        }
-
-        public Matrix[] GetNumericGradients(Matrix[] input, Matrix[] output)
-        {
-            var ret = new Matrix[Thetas.Length];
-            var thetas = this.Thetas.ToArray();
-
-            for (int idx = 0; idx < thetas.Length; idx++)
-            {
-                ret[idx] = GetNumericGradient(idx, input, output);
-            }
-
-            return ret;
-        }
-
-        Matrix GetNumericGradient(int idx, Matrix[] input, Matrix[] output)
-        {
-            var thetas = Thetas.ToArray();
-
-            const double e = 1e-4;
-            var ret = new Matrix(Thetas[idx].RowNum, Thetas[idx].ColNum);
-            var diffMat = new Matrix(Thetas[idx].RowNum, Thetas[idx].ColNum);
-
-            for (int row = 0; row < diffMat.RowNum; row++)
-            {
-                for (int col = 0; col < diffMat.ColNum; col++)
-                {
-                    var orgValue = thetas[idx][row, col];
-
-                    thetas[idx][row, col] = orgValue - e;
-                    var loss1 = J(thetas, input, output);
-
-                    thetas[idx][row, col] = orgValue + e;
-                    var loss2 = J(thetas, input, output);
-
-                    ret[row, col] = (loss2 - loss1) / (2.0 * e);
-
-                    thetas[idx][row, col] = orgValue;
-                }
-            }
-
-            return ret;
-        }
-
-        double J(Matrix[] thetas, Matrix[] input, Matrix[] output)
+        public double J(Matrix[] thetas, Matrix[] input, Matrix[] output)
         {
             var ret = 0.0;
 
