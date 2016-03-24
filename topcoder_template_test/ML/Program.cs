@@ -277,15 +277,20 @@ namespace ML
             var test_inputs = testDataTuple.Item1;
             var test_outputs = testDataTuple.Item2;
 
-            var parameters = nn.FindParameters(inputs, outputs, test_inputs, test_outputs, 5);
+            var alphas = new double[] { 5, 7 };
+            var lambdas = new double[] { 0.03, 0.1, 0.3, 1.0 };
 
-            nn.Learn(inputs, outputs, parameters.Item1, parameters.Item2, 5);
+            var parameters = nn.FindParameters(alphas, lambdas, inputs, outputs, test_inputs, test_outputs, 300);
+            
+            Console.WriteLine("Chosen params - alpha:{0}, lambda:{1}", parameters.Item1, parameters.Item2);
+
+            nn.Learn(inputs, outputs, parameters.Item1, parameters.Item2, 300);
 
             var result = nn.GetResult(test_inputs, test_outputs);
-            var total = result.Item1;
-            var err = result.Item2;
+            var err = result.Item1;
+            var total = result.Item2;
 
-            Console.WriteLine(string.Format("Total:{0}, Error:{1}, Success Rate: {2}", total, err, (double)(total - err) / (double)total));
+            Console.WriteLine(string.Format("Total:{0}, Error:{1}, Success Rate: {2}", total, err, (double)(total - err) / (double)total));            
         }
 
         static Tuple<Matrix[], Matrix[]> GetNNData(string str)

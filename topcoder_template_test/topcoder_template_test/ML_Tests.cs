@@ -335,7 +335,9 @@ namespace topcoder_template_test
             output[0, 0] = 1;
             outputs.Add(output);
 
-            var parameters = nn.FindParameters(inputs.ToArray(), outputs.ToArray(), inputs.ToArray(), outputs.ToArray(), 50000);
+            var alphas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
+            var lambdas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
+            var parameters = nn.FindParameters(alphas, lambdas, inputs.ToArray(), outputs.ToArray(), inputs.ToArray(), outputs.ToArray(), 50000);
 
             nn.RandomizeThetas();
             nn.Learn(inputs.ToArray(), outputs.ToArray(), parameters.Item1, parameters.Item2, 50000);

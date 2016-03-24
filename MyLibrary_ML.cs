@@ -281,7 +281,7 @@ namespace topcoder_template_test
                     //classification
                     var maxValue = result[0, 0];
                     var maxIdx = 0;
-                    for (int j = 1; j < result.ColNum; j++)
+                    for (int j = 1; j < result.RowNum; j++)
                     {
                         if (maxValue < result[j, 0])
                         {
@@ -304,17 +304,15 @@ namespace topcoder_template_test
         /// <summary>
         /// return alpha and lambda
         /// </summary>
-        public Tuple<double, double> FindParameters(Matrix[] inputs, Matrix[] outputs, Matrix[] cross_inputs, Matrix[] cross_outputs, int maxItr)
+        public Tuple<double, double> FindParameters(double[] alphas, double[] lambdas, Matrix[] inputs, Matrix[] outputs, Matrix[] cross_inputs, Matrix[] cross_outputs, int maxItr)
         {
-            var alphas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
-            var lambdas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
             var r_alpha = 0.0;
             var r_lamda = 0.0;
             var min_err = Int32.MaxValue;
 
-            for (int i = 0; i < alphas.Length; i++)
+            for (int j = 0; j < lambdas.Length; j++)
             {
-                for (int j = 0; j < lambdas.Length; j++)
+                for (int i = 0; i < alphas.Length; i++)
                 {
                     RandomizeThetas();
                     var alpha = alphas[i];
@@ -322,6 +320,8 @@ namespace topcoder_template_test
 
                     Learn(inputs, outputs, alpha, lambda, maxItr);
                     var resultTuple = GetResult(cross_inputs, cross_outputs);
+
+                    Console.WriteLine(string.Format("alpha:{0}, lambda:{1}, error:{2}", alpha, lambda, resultTuple.Item1));
 
                     if (resultTuple.Item1 < min_err)
                     {
