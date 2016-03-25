@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\MyLibrary.cs">
+      <Link>MyLibrary.cs</Link>
+    </Compile>
     <Compile Include="..\..\MyLibrary_Matrix.cs">
       <Link>MyLibrary_Matrix.cs</Link>
     </Compile>

@@ -338,4 +338,143 @@ namespace topcoder_template_test
             return new Tuple<double, double>(r_alpha, r_lamda);
         }
     }
+
+    public static class KMeans
+    {
+        public static double[] FindK(int tryNum, int[] Ks, Matrix x)
+        {
+            var ret = new double[Ks.Length];
+
+            for (int i = 0; i < Ks.Length; i++)
+            {
+                var result = GetKMeans_withCost(tryNum, Ks[i], x);
+                ret[i] = result.Item2;
+            }
+
+            return ret;
+        }
+
+        public static int[] GetKMeans(int tryNum, int K, Matrix x)
+        {
+            return GetKMeans_withCost(tryNum, K, x).Item1;
+        }
+
+        static Tuple<int[], double> GetKMeans_withCost(int tryNum, int K, Matrix x)
+        {
+            var r = new Random();
+
+            int[] ret = null;
+            var centroids = new Matrix[K];
+
+            var minCost = double.MaxValue;
+            while (tryNum > 0)
+            {
+                Initialize(r, x, centroids);
+
+                var J = 0.0;
+                int[] c = null;
+                while (true)
+                {
+                    var cTuple = AssignC(centroids, x);
+                    c = cTuple.Item1;
+
+                    var prevJ = J;
+                    J = cTuple.Item2;
+                    if (DoubleUtil.Equals(prevJ, J)) break;
+
+                    UpdateCentroids(centroids, x, c);
+                }
+
+                if (J < minCost || ret == null)
+                {
+                    ret = c;
+                    minCost = J;
+                }
+
+                tryNum--;
+            }
+
+            return new Tuple<int[], double>(ret, minCost);
+        }
+
+        static void Initialize(Random rnd, Matrix x, Matrix[] centroids)
+        {
+            var x_indices = new List<int>();
+            for (int i = 0; i < x.RowNum; i++) x_indices.Add(i);
+            MyLib.ShuffleList(x_indices, rnd);
+
+            //assign centroids' values
+            for (int i = 0; i < centroids.Length; i++)
+            {
+                var centroidsIdx = -1;
+                if (i < x_indices.Count()) centroidsIdx = x_indices[i];
+                centroids[i] = centroidsIdx == -1 ? null : Matrix.GetRowMatrix(x, centroidsIdx);
+            }
+        }
+
+        static Tuple<int[], double> AssignC(Matrix[] centroids, Matrix x)
+        {
+            var ret = new int[x.RowNum];
+            var totalCost = 0.0;
+
+            for (int i = 0; i < x.RowNum; i++)
+            {
+                var centroidTuple = FindClosestCentroid(centroids, x, i);
+                ret[i] = centroidTuple.Item1;
+                totalCost += centroidTuple.Item2;
+            }
+
+            return new Tuple<int[],double>(ret, totalCost);
+        }
+
+        static Tuple<int, double> FindClosestCentroid(Matrix[] centroids, Matrix x, int x_idx)
+        {
+            var ret = -1;
+            var minDist = double.MaxValue;
+
+            for (int i = 0; i < centroids.Length; i++)
+            {
+                if (centroids[i] == null) continue;
+                var dist = Matrix.GetSqDistance(centroids[i], Matrix.GetRowMatrix(x, x_idx));
+                if (dist < minDist)
+                {
+                    ret = i;
+                    minDist = dist;
+                }
+            }
+
+            return new Tuple<int,double>(ret, minDist);
+        }
+
+        static void UpdateCentroids(Matrix[] centroids, Matrix x, int[] c)
+        {
+            if (x.RowNum == 0) return;
+
+            for (int i = 0; i < centroids.Length; i++)
+            {
+                var centroid = centroids[i];
+                if (centroid == null) continue;
+
+                var sum_Matrix = new Matrix(1, x.ColNum);
+                var num = 0;
+
+                for (int x_idx = 0; x_idx < x.RowNum; x_idx++)
+                {
+                    if (c[x_idx] != i) continue;
+                    sum_Matrix += Matrix.GetRowMatrix(x, x_idx);
+                    num++;
+                }
+
+                if (num != 0)
+                {
+                    sum_Matrix /= num;
+                    centroids[i] = sum_Matrix;
+                }
+                else
+                {
+                    centroids[i] = null;
+                }
+            }
+        }
+    }
 }

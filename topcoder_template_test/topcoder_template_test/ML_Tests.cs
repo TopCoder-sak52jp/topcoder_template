@@ -335,15 +335,150 @@ namespace topcoder_template_test
             output[0, 0] = 1;
             outputs.Add(output);
 
-            var alphas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
-            var lambdas = new double[] { 0.1, 0.3, 1.0, 3.0, 10.0 };
-            var parameters = nn.FindParameters(alphas, lambdas, inputs.ToArray(), outputs.ToArray(), inputs.ToArray(), outputs.ToArray(), 50000);
+            var alphas = new double[] { 3.0, 10.0 };
+            var lambdas = new double[] { 0, 0.01 };
+            var parameters = nn.FindParameters(alphas, lambdas, inputs.ToArray(), outputs.ToArray(), inputs.ToArray(), outputs.ToArray(), 60000);
 
             nn.RandomizeThetas();
-            nn.Learn(inputs.ToArray(), outputs.ToArray(), parameters.Item1, parameters.Item2, 50000);
+            nn.Learn(inputs.ToArray(), outputs.ToArray(), parameters.Item1, parameters.Item2, 60000);
 
             var resultTuple = nn.GetResult(inputs.ToArray(), outputs.ToArray());
             Assert.AreEqual(0, resultTuple.Item1);
+        }
+
+        [TestMethod]
+        public void KMeansTest_r1()
+        {
+            var xs = new double[] { 0.01, 5.1, 0.015, 3.7, 10.0, 9.9, 11.1, 10.95 };
+            var x_matrix = new Matrix(xs.Length, 1);
+            for(int i=0; i<xs.Length; i++)
+            {
+                x_matrix[i, 0] = xs[i];
+            }
+            var result = KMeans.GetKMeans(1, 2, x_matrix);
+            Assert.AreEqual(result[0], result[1]);
+            Assert.AreEqual(result[0], result[2]);
+            Assert.AreEqual(result[0], result[3]);
+            Assert.AreEqual(result[4], result[5]);
+            Assert.AreEqual(result[4], result[6]);
+            Assert.AreEqual(result[4], result[7]);
+            Assert.IsTrue(result[0] != result[4]);
+
+            for (int i = 0; i < 10; i++)
+            {
+                result = KMeans.GetKMeans(100, 3, x_matrix);
+                Assert.AreEqual(result[0], result[2]);
+                Assert.AreEqual(result[1], result[3]);
+                Assert.AreEqual(result[4], result[5]);
+                Assert.AreEqual(result[4], result[6]);
+                Assert.AreEqual(result[4], result[7]);
+                Assert.IsTrue(result[0] != result[1]);
+                Assert.IsTrue(result[1] != result[4]);
+                Assert.IsTrue(result[0] != result[4]);
+            }
+
+            xs = new double[] { 0.1, 1.2, 0.2, 0.9, 0.15, 1.4, 0.3, 0.8 };
+            x_matrix = new Matrix(xs.Length, 1);
+            for (int i = 0; i < xs.Length; i++)
+            {
+                x_matrix[i, 0] = xs[i];
+            }
+            result = KMeans.GetKMeans(1, 2, x_matrix);
+            Assert.AreEqual(result[0], result[2]);
+            Assert.AreEqual(result[1], result[3]);
+            Assert.AreEqual(result[0], result[4]);
+            Assert.AreEqual(result[1], result[5]);
+            Assert.AreEqual(result[0], result[6]);
+            Assert.AreEqual(result[1], result[7]);
+            Assert.IsTrue(result[0] != result[1]);
+        }
+
+        [TestMethod]
+        public void KMeansTest_r2()
+        {
+            var xs = new double[] { 0.01, 5.1, 0.015, 3.7, 10.0, 9.9, 11.1, 10.95 };
+            var ys = new double[] { 2, 14, 5, 11, 3, 4, 2.5, 3 };
+            var x_matrix = new Matrix(xs.Length, 2);
+            for(int i=0; i<xs.Length; i++)
+            {
+                var x = xs[i];
+                var y = ys[i];
+                x_matrix[i, 0] = x;
+                x_matrix[i, 1] = y;
+            }
+            int[] result;
+
+            for (int i = 0; i < 10; i++)
+            {
+                result = KMeans.GetKMeans(100, 2, x_matrix);
+                Assert.AreEqual(result[0], result[1]);
+                Assert.AreEqual(result[0], result[2]);
+                Assert.AreEqual(result[0], result[3]);
+                Assert.AreEqual(result[4], result[5]);
+                Assert.AreEqual(result[4], result[6]);
+                Assert.AreEqual(result[4], result[7]);
+                Assert.IsTrue(result[0] != result[4]);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                result = KMeans.GetKMeans(100, 3, x_matrix);
+                Assert.AreEqual(result[0], result[2]);
+                Assert.AreEqual(result[1], result[3]);
+                Assert.AreEqual(result[4], result[5]);
+                Assert.AreEqual(result[4], result[6]);
+                Assert.AreEqual(result[4], result[7]);
+                Assert.IsTrue(result[0] != result[1]);
+                Assert.IsTrue(result[1] != result[4]);
+                Assert.IsTrue(result[0] != result[4]);
+            }
+
+
+            xs = new double[] { 0.01, 0.02, 0.01, 0.02, 0.04, 0.035 };
+            ys = new double[] { 0.02, 0.01, 0.08, 0.06, 0.05, 0.03 };
+            x_matrix = new Matrix(xs.Length, 2);
+            for (int i = 0; i < xs.Length; i++)
+            {
+                var x = xs[i];
+                var y = ys[i];
+                x_matrix[i, 0] = x;
+                x_matrix[i, 1] = y;
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                result = KMeans.GetKMeans(100, 3, x_matrix);
+                Assert.AreEqual(result[0], result[1]);
+                Assert.AreEqual(result[2], result[3]);
+                Assert.AreEqual(result[4], result[5]);
+                Assert.IsTrue(result[0] != result[2]);
+                Assert.IsTrue(result[2] != result[4]);
+                Assert.IsTrue(result[0] != result[4]);
+            }
+        }
+
+        [TestMethod]
+        public void KMeansTest_FindK()
+        {
+            var xs = new double[] { 0.01, 5.1, 0.015, 3.7, 10.0, 9.9, 11.1, 10.95 };
+            var ys = new double[] { 2, 14, 5, 11, 3, 4, 2.5, 3 };
+            var x_matrix = new Matrix(xs.Length, 2);
+            for(int i=0; i<xs.Length; i++)
+            {
+                var x = xs[i];
+                var y = ys[i];
+                x_matrix[i, 0] = x;
+                x_matrix[i, 1] = y;
+            }
+
+            var result = KMeans.FindK(100, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, x_matrix);
+
+            for (int i = 1; i <= 7; i++)
+            {
+                Assert.IsTrue(result[i - 1] > result[i]);
+            }
+            Assert.AreEqual(0, result[7]);
+            Assert.AreEqual(0, result[8]);
+            Assert.AreEqual(0, result[9]);
         }
     }
 }

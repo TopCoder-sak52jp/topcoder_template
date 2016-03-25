@@ -125,6 +125,34 @@ namespace topcoder_template_test
             return ret;
         }
 
+        public static bool operator ==(Matrix m1, double p)
+        {
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    if (!DoubleUtil.Equals(m1[row, col], p)) return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool operator ==(double p, Matrix m1)
+        {
+            return m1 == p;
+        }
+
+        public static bool operator !=(Matrix m1, double p)
+        {
+            return !(m1 == p);
+        }
+
+        public static bool operator !=(double p, Matrix m1)
+        {
+            return m1 != p;
+        }
+
         /// <summary>
         /// calc [ a b c ] x [ d; e ] as
         ///      [ a b c ] x [ 1; d; e]
@@ -458,6 +486,45 @@ namespace topcoder_template_test
             var d = 1.0 / c;
 
             var ret = 1.0 / (1.0 + (1.0 / (Math.E ^ (z))));
+            return ret;
+        }
+
+        public static double GetSqDistance(Matrix m1, Matrix m2)
+        {
+            var ret = 0.0;
+
+            for (int row = 0; row < m1.RowNum; row++)
+            {
+                for (int col = 0; col < m1.ColNum; col++)
+                {
+                    ret += Math.Pow(m1[row, col] - m2[row, col], 2);
+                }
+            }
+
+            return ret;
+        }
+
+        public static Matrix GetRowMatrix(Matrix x, int rowIdx)
+        {
+            var ret = new Matrix(1, x.ColNum);
+
+            for (int col = 0; col < x.ColNum; col++)
+            {
+                ret[0, col] = x[rowIdx, col];
+            }
+
+            return ret;
+        }
+
+        public static Matrix GetColMatrix(Matrix x, int colIdx)
+        {
+            var ret = new Matrix(x.RowNum, 1);
+
+            for (int row = 0; row < x.RowNum; row++)
+            {
+                ret[row, 0] = x[row, colIdx];
+            }
+
             return ret;
         }
     }

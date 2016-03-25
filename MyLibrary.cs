@@ -157,7 +157,6 @@ namespace topcoder_template_test
         }
     }
 
-
     static public class MyLib
     {
         public static int LowerBound(int[] ar, int val)
@@ -303,6 +302,22 @@ namespace topcoder_template_test
             tmp = a;
             a = b;
             b = tmp;
+        }
+
+        static public void ShuffleList<T>(List<T> list, Random rnd)
+        {
+            if (list.Count() < 2) return;
+
+            var n = list.Count();
+            while (n > 0)
+            {
+                n--;
+                int k = (int)(rnd.Next() % (n + 1));
+
+                var value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
         }
     }
 

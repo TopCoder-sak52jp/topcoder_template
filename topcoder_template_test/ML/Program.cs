@@ -277,14 +277,16 @@ namespace ML
             var test_inputs = testDataTuple.Item1;
             var test_outputs = testDataTuple.Item2;
 
-            var alphas = new double[] { 5, 7 };
-            var lambdas = new double[] { 0.03, 0.1, 0.3, 1.0 };
+            //var alphas = new double[] { 5, 7 };
+            //var lambdas = new double[] { 0.03, 0.1, 0.3, 1.0 };
 
-            var parameters = nn.FindParameters(alphas, lambdas, inputs, outputs, test_inputs, test_outputs, 300);
+            //var parameters = nn.FindParameters(alphas, lambdas, inputs, outputs, test_inputs, test_outputs, 300);
             
-            Console.WriteLine("Chosen params - alpha:{0}, lambda:{1}", parameters.Item1, parameters.Item2);
+            //Console.WriteLine("Chosen params - alpha:{0}, lambda:{1}", parameters.Item1, parameters.Item2);
 
-            nn.Learn(inputs, outputs, parameters.Item1, parameters.Item2, 300);
+            //nn.Learn(inputs, outputs, parameters.Item1, parameters.Item2, 300);
+
+            nn.Learn(inputs, outputs, 5, 0.1, 300);
 
             var result = nn.GetResult(test_inputs, test_outputs);
             var err = result.Item1;
@@ -323,8 +325,8 @@ namespace ML
 
         static void Main(string[] args)
         {
-            //LinearTest_Example();
-            //LogisticTest_Example();
+            LinearTest_Example();
+            LogisticTest_Example();
             NeuralNetworkTest_Example();
 
             Console.ReadLine();
