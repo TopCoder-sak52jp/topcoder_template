@@ -37,7 +37,7 @@ namespace topcoder_template_test
         /// </summary>
         public PriorityQueue(int maxSize, IComparer<T> comparer)
         {
-            _heap = new T[maxSize];
+            _heap = new T[maxSize + 1];
             _comparer = comparer;
         }
 
@@ -48,7 +48,7 @@ namespace topcoder_template_test
         /// <param name="type">0: asc, 1:desc</param>
         public PriorityQueue(int maxSize, int type = 0)
         {
-            _heap = new T[maxSize];
+            _heap = new T[maxSize + 1];
             _type = type;
         }
 
@@ -341,23 +341,9 @@ namespace topcoder_template_test
             }
         }
 
-        private int GetTotalPositiveCost()
+        public BellmanFord(int v)
         {
-            int sum = 0;
-            foreach (var e in Edge)
-            {
-                if (e.cost > 0) sum += e.cost;
-            }
-            return sum;
-        }
-
-        private void generateV()
-        {
-            foreach ( var e in Edge ){
-                V = Math.Max(V, e.from);
-                V = Math.Max(V, e.to);
-            }
-            V++;
+            V = v;
         }
 
         /// <summary>
@@ -365,13 +351,10 @@ namespace topcoder_template_test
         /// </summary>
         public int[] GetShortestPath(int startIndex)
         {
-            if (V == 0 && Edge.Count > 0) generateV();
-
             int[] shortestPath = new int[V];
-            int INF = this.GetTotalPositiveCost() + 1;
+            var INF = Int32.MaxValue;
 
             for (int i = 0; i < V; i++) shortestPath[i] = INF;
-
             shortestPath[startIndex] = 0;
             while (true)
             {
@@ -416,10 +399,16 @@ namespace topcoder_template_test
     /// </summary>
     public class Dijkstra
     {
+        private class Edge
+        {
+            public int T { get; set; }
+            public int C { get; set; }
+        }
+
         private int maxIndex = -1;
         private const int INF = Int32.MaxValue;
 
-        private int[,] _edgeArray;
+        private Dictionary<int, List<Edge>> _edgeArray = new Dictionary<int, List<Edge>>();
 
         /// <summary>
         /// Dijkstra, get min cost between two points
@@ -429,54 +418,44 @@ namespace topcoder_template_test
         public Dijkstra(int size)
         {
             maxIndex = size + 1;
-            _edgeArray = new int[maxIndex, maxIndex];
-
-            for (int i = 0; i < _edgeArray.GetLength(0); i++)
-            {
-                for (int j = 0; j < _edgeArray.GetLength(1); j++)
-                {
-                    _edgeArray[i, j] = INF;
-                    if (i == j) _edgeArray[i, j] = 0;
-                }
-            }
         }
 
-        // Add a path(no direction) with its cost
+        // Add a path with its cost
         public void AddPath(int s, int t, int cost)
         {
-            _edgeArray[s, t] = Math.Min(_edgeArray[s, t], cost);
-            _edgeArray[t, s] = _edgeArray[s, t];
+            if (!_edgeArray.ContainsKey(s)) _edgeArray.Add(s, new List<Edge>());
+            _edgeArray[s].Add(new Edge() { T = t, C = cost });
         }
 
-        //Get the min cost between s and t
+        //Get the min cost from s
         //return Int32.MaxValue if no path
-        public int GetMinCost(int s, int t)
+        public int[] GetMinCost(int s)
         {
             int[] cost = new int[maxIndex];
             for (int i = 0; i < cost.Length; i++) cost[i] = INF;
             cost[s] = 0;
 
-            var priorityQueue = new PriorityQueue<ComparablePair<int, int>>(maxIndex);
-            priorityQueue.Push( new ComparablePair<int, int>(0, s) );
+            var priorityQueue = new PriorityQueue<ComparablePair<int, int>>(_edgeArray.Sum(e => e.Value.Count()) + 1);
+            priorityQueue.Push(new ComparablePair<int, int>(0, s));
 
             while (priorityQueue.Count() > 0)
             {
                 var costDestinationPair = priorityQueue.Pop();
                 if (cost[costDestinationPair.Item2] < costDestinationPair.Item1) continue;
+                if (!_edgeArray.ContainsKey(costDestinationPair.Item2)) continue;
 
-                for (int i = 0; i < maxIndex; i++)
+                foreach (var edge in _edgeArray[costDestinationPair.Item2])
                 {
-                    int newCostToi = _edgeArray[costDestinationPair.Item2, i] == INF ? INF :
-                        costDestinationPair.Item1 + _edgeArray[costDestinationPair.Item2, i];
-                    if (newCostToi < cost[i])
+                    var newCostToi = costDestinationPair.Item1 + edge.C;
+                    if (newCostToi < cost[edge.T])
                     {
-                        cost[i] = newCostToi;
-                        priorityQueue.Push(new ComparablePair<int, int>(newCostToi, i));
+                        cost[edge.T] = newCostToi;
+                        priorityQueue.Push(new ComparablePair<int, int>(newCostToi, edge.T));
                     }
                 }
             }
 
-            return cost[t];
+            return cost;
         }
     }
 

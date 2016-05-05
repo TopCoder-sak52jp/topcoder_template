@@ -25,7 +25,7 @@ namespace topcoder_template_test
             dk.AddPath(3, 2, 2);
             dk.AddPath(3, 4, 4);
 
-            Assert.AreEqual(4, dk.GetMinCost(0, 4));
+            Assert.AreEqual(4, dk.GetMinCost(0)[4]);
         }
 
         [TestMethod]
@@ -36,11 +36,11 @@ namespace topcoder_template_test
             dk.AddPath(1, 2, 1);
             dk.AddPath(2, 3, 1);
             dk.AddPath(3, 4, 1);
-            Assert.AreEqual(4, dk.GetMinCost(0, 4));
+            Assert.AreEqual(4, dk.GetMinCost(0)[4]);
 
             dk = new Dijkstra(1);
             dk.AddPath(0, 1, 1);
-            Assert.AreEqual(1, dk.GetMinCost(0, 1));
+            Assert.AreEqual(1, dk.GetMinCost(0)[1]);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace topcoder_template_test
             dk.AddPath(2, 3, 1);
             dk.AddPath(3, 4, 1);
             dk.AddPath(4, 5, 1);
-            Assert.AreEqual(Int32.MaxValue, dk.GetMinCost(0, 5));
+            Assert.AreEqual(Int32.MaxValue, dk.GetMinCost(0)[5]);
         }
     }
 }
