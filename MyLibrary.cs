@@ -323,7 +323,6 @@ namespace topcoder_template_test
 
     /// <summary>
     /// find the shortest path from start to all destination
-    /// works for directed/nondirected graph
     /// </summary>
     public class BellmanFord
     {
