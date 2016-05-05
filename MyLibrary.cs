@@ -347,6 +347,7 @@ namespace topcoder_template_test
 
         /// <summary>
         ///  return shortestPath[V] represents distance from startIndex
+        ///  null if there are negative loop from the startIndex
         /// </summary>
         public int[] GetShortestPath(int startIndex)
         {
@@ -355,6 +356,8 @@ namespace topcoder_template_test
 
             for (int i = 0; i < V; i++) shortestPath[i] = INF;
             shortestPath[startIndex] = 0;
+
+            var cnt = 0;
             while (true)
             {
                 bool update = false;
@@ -367,15 +370,18 @@ namespace topcoder_template_test
                     }
                 }
                 if (!update) break;
+
+                cnt++;
+                if (cnt == V - 1) return null;
             }
 
             return shortestPath;
         }
 
         /// <summary>
-        ///  return true if it has negative close loop
+        ///  return true if it has any negative close loop
         /// </summary>
-        public bool HasNegativeLoop()
+        public bool HasAnyNegativeLoop()
         {
             int[] d = new int[V];
             for (int i = 0; i < V; i++)
@@ -394,7 +400,7 @@ namespace topcoder_template_test
     }
 
     /// <summary>
-    /// Get min cost between two points
+    /// find the shortest path from start to all destination
     /// </summary>
     public class Dijkstra
     {
