@@ -464,6 +464,48 @@ namespace topcoder_template_test
         }
     }
 
+
+    public class WarshallFloyd
+    {
+        int[,] dist;
+        public int V;
+
+        public WarshallFloyd(int v)
+        {
+            V = v;
+            dist = new int[v, v];
+
+            for (int i = 0; i < V; i++)
+            {
+                for (int j = 0; j < V; j++)
+                {
+                    dist[i, j] = Int32.MaxValue;
+                    if (i == j) dist[i, j] = 0;
+                }
+            }
+        }
+
+        public void AddEdge(int s, int t, int c)
+        {
+            dist[s, t] = c;
+        }
+
+        public int[,] GetDistances()
+        {
+            for (int k = 0; k < V; k++)
+            {
+                for (int i = 0; i < V; i++)
+                {
+                    for (int j = 0; j < V; j++)
+                    {
+                        dist[i, j] = Math.Min(dist[i, j], dist[i, k] == Int32.MaxValue || dist[k, j] == Int32.MaxValue ? Int32.MaxValue : dist[i, k] + dist[k, j]);
+                    }
+                }
+            }
+            return dist;
+        }
+    }
+
     public class ComparablePair<T, U> : IComparable where T : IComparable<T>
     {
         public readonly T Item1;
