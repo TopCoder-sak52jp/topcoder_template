@@ -1,11 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace topcoder_template_test
 {
+    static public class StringUtil
+    {
+        public static int[] Z_Algorithm(string str)
+        {
+            var ret = new int[str.Length];
+            ret[0] = str.Length;
+
+            var j = 0;
+            for (int i = 1; i < str.Length; )
+            {
+                while (i + j < str.Length && str[j] == str[i + j]) j++;
+                ret[i] = j;
+
+                if (j == 0)
+                {
+                    i++;
+                    continue;
+                }
+
+                var k = 1;
+                while (i + k < str.Length && k + ret[k] < j)
+                {
+                    ret[i + k] = ret[k];
+                    k++;
+                }
+
+                i += k;
+                j -= k; //jを0まで戻す必要はない。[0,j-k)はすでに比較し、一致することが分かっている！
+            }
+
+            return ret;
+        }
+    }
+
     public class DoubleUtil
     {
         private static double EPS = 1e-10;
