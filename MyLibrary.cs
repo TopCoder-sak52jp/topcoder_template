@@ -9,6 +9,32 @@ namespace topcoder_template_test
 {
     static public class StringUtil
     {
+        //return true if t contains s
+        public static bool RollingHash(string s, string t)
+        {
+            const UInt64 B = 1000000007;
+            if (s.Length > t.Length) return false;
+
+            UInt64 Bpowl = 1;
+            for (int i = 0; i < s.Length; i++) Bpowl *= B;
+
+            UInt64 hs = 0;
+            for (int i = 0; i < s.Length; i++) hs = hs * B + (s[i]);
+
+            UInt64 ht = 0;
+            for (int i = 0; i < s.Length; i++) ht = ht * B + (t[i]);
+
+            if (hs == ht) return true;
+
+            for (int i = s.Length; i < t.Length; i++)
+            {
+                ht = ht * B + t[i] - t[i - s.Length] * Bpowl;
+                if (hs == ht) return true;
+            }
+
+            return false;
+        }
+
         public static int[] Z_Algorithm(string str)
         {
             var ret = new int[str.Length];
@@ -70,20 +96,19 @@ namespace topcoder_template_test
         /// <summary>
         /// Priority Queue with custom comparer
         /// </summary>
-        public PriorityQueue(int maxSize, IComparer<T> comparer)
+        public PriorityQueue(IComparer<T> comparer)
         {
-            _heap = new T[maxSize + 1];
+            _heap = new T[128];
             _comparer = comparer;
         }
 
         /// <summary>
         /// Priority queue
         /// </summary>
-        /// <param name="maxSize">max size</param>
         /// <param name="type">0: asc, 1:desc</param>
-        public PriorityQueue(int maxSize, int type = 0)
+        public PriorityQueue(int type = 0)
         {
-            _heap = new T[maxSize + 1];
+            _heap = new T[128];
             _type = type;
         }
 
@@ -96,6 +121,12 @@ namespace topcoder_template_test
         public void Push(T x)
         {
             _count++;
+            if (_count > _heap.Length)
+            {
+                var newheap = new T[_heap.Length * 2];
+                for (int n = 0; n < _heap.Length; n++) newheap[n] = _heap[n];
+                _heap = newheap;
+            }
 
             //node number
             var i = _sz++;
@@ -498,7 +529,6 @@ namespace topcoder_template_test
             return cost;
         }
     }
-
 
     public class WarshallFloyd
     {

@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal_Int_Asc()
         {
-            var pq = new PriorityQueue<int>(6);
+            var pq = new PriorityQueue<int>();
 
             pq.Push(0);
             pq.Push(5);
@@ -76,7 +76,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal_Int_Desc()
         {
-            var pq = new PriorityQueue<int>(6, 1);
+            var pq = new PriorityQueue<int>(1);
 
             pq.Push(0);
             pq.Push(5);
@@ -139,7 +139,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal_String_Asc()
         {
-            var pq = new PriorityQueue<string>(6);
+            var pq = new PriorityQueue<string>();
 
             pq.Push("ABC");
             pq.Push("HJ");
@@ -169,7 +169,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal_String_Desc()
         {
-            var pq = new PriorityQueue<string>(6, 1);
+            var pq = new PriorityQueue<string>(1);
 
             pq.Push("ABC");
             pq.Push("HJ");
@@ -229,7 +229,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal_Custom_Comparer()
         {
-            var pq = new PriorityQueue<Human>(5, Human.CompareByName);
+            var pq = new PriorityQueue<Human>(Human.CompareByName);
 
             pq.Push(new Human() { Id = 10, Name = "GHI", Address = "X" });
             pq.Push(new Human() { Id = 0, Name = "DEF", Address = "Y" });
@@ -239,7 +239,7 @@ namespace topcoder_template_test
             Assert.AreEqual("DEF", pq.Pop().Name);
             Assert.AreEqual("GHI", pq.Pop().Name);
 
-            pq = new PriorityQueue<Human>(5, Human.CompareByAddress);
+            pq = new PriorityQueue<Human>(Human.CompareByAddress);
 
             pq.Push(new Human() { Id = 10, Name = "GHI", Address = "X" });
             pq.Push(new Human() { Id = 0, Name = "DEF", Address = "Y" });
@@ -248,6 +248,31 @@ namespace topcoder_template_test
             Assert.AreEqual("GHI", pq.Pop().Name);
             Assert.AreEqual("DEF", pq.Pop().Name);
             Assert.AreEqual("ABC", pq.Pop().Name);
+        }
+
+        [TestMethod]
+        public void Exceed_Heap_Size()
+        {
+            var sizes = new int[] { 1, 127, 128, 129, 512, 1024 };
+
+            foreach (var size in sizes)
+            {
+                var arg = new List<int>();
+                for (int i = 0; i < size; i++) arg.Add(i);
+                var expect = arg.ToList();
+
+                MyLib.ShuffleList(arg, new Random());
+                var pq = new PriorityQueue<int>();
+                foreach (var a in arg) pq.Push(a);
+
+                var j = 0;
+                while (pq.Count() > 0)
+                {
+                    Assert.AreEqual(expect[j], pq.Peek());
+                    pq.Pop();
+                    j++;
+                }
+            }
         }
     }
 }

@@ -20,5 +20,17 @@ namespace topcoder_template_test
                 Assert.AreEqual(exp[i], ret[i]);
             }
         }
+
+        [TestMethod]
+        public void RollingHash_Test()
+        {
+            Assert.AreEqual(false, StringUtil.RollingHash("ab", "a"));
+            Assert.AreEqual(true, StringUtil.RollingHash("a", "ab"));
+            Assert.AreEqual(true, StringUtil.RollingHash("ab", "xyab"));
+            Assert.AreEqual(true, StringUtil.RollingHash("ab", "xyabc"));
+            Assert.AreEqual(false, StringUtil.RollingHash("ac", "xyabc"));
+            Assert.AreEqual(false, StringUtil.RollingHash("ab", ""));
+            Assert.AreEqual(true, StringUtil.RollingHash("", "ab"));
+        }
     }
 }
