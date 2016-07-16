@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var dk = new Dijkstra(4);
+            var dk = new Dijkstra();
 
             dk.AddPath(0, 1, 3);
             dk.AddPath(0, 2, 1);
@@ -31,14 +31,14 @@ namespace topcoder_template_test
         [TestMethod]
         public void EdgeCase()
         {
-            var dk = new Dijkstra(4);
+            var dk = new Dijkstra();
             dk.AddPath(0, 1, 1);
             dk.AddPath(1, 2, 1);
             dk.AddPath(2, 3, 1);
             dk.AddPath(3, 4, 1);
             Assert.AreEqual(4, dk.GetMinCost(0)[4]);
 
-            dk = new Dijkstra(1);
+            dk = new Dijkstra();
             dk.AddPath(0, 1, 1);
             Assert.AreEqual(1, dk.GetMinCost(0)[1]);
         }
@@ -46,7 +46,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void NoPath()
         {
-            var dk = new Dijkstra(5);
+            var dk = new Dijkstra();
             dk.AddPath(0, 1, 1);
             dk.AddPath(2, 3, 1);
             dk.AddPath(3, 4, 1);

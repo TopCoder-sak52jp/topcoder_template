@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var ff = new FordFulkerson(5);
+            var ff = new FordFulkerson();
             ff.AddEdge(0, 1, 10);
             ff.AddEdge(0, 2, 2);
             ff.AddEdge(1, 2, 6);
@@ -24,7 +24,7 @@ namespace topcoder_template_test
             Assert.AreEqual(11, ff.GetMaxFlow(0, 4));
 
 
-            ff = new FordFulkerson(5);
+            ff = new FordFulkerson();
             ff.AddEdge(0, 1, 10);
             ff.AddEdge(0, 2, 2);
             ff.AddEdge(1, 2, 6);
@@ -35,7 +35,7 @@ namespace topcoder_template_test
             Assert.AreEqual(11, ff.GetMaxFlow(1, 4));
 
 
-            ff = new FordFulkerson(5);
+            ff = new FordFulkerson();
             ff.AddEdge(0, 1, 10);
             ff.AddEdge(0, 2, 2);
             ff.AddEdge(1, 2, 6);

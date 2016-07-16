@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var bm = new BipartiteMatching(6);
+            var bm = new BipartiteMatching();
             bm.AddPair(0, 3);
             bm.AddPair(0, 4);
             bm.AddPair(1, 3);
@@ -21,12 +21,21 @@ namespace topcoder_template_test
             bm.AddPair(2, 4);
             Assert.AreEqual(3, bm.GetMaxMatchingNum());
 
-            bm = new BipartiteMatching(6);
+            bm = new BipartiteMatching();
             bm.AddPair(0, 4);
             bm.AddPair(1, 3);
             bm.AddPair(1, 5);
             bm.AddPair(2, 4);
             Assert.AreEqual(2, bm.GetMaxMatchingNum());
+
+            bm = new BipartiteMatching();
+            bm.AddPair(0, 4);
+            bm.AddPair(0, 5);
+            bm.AddPair(1, 4);
+            bm.AddPair(1, 6);
+            bm.AddPair(2, 5);
+            bm.AddPair(2, 6);
+            Assert.AreEqual(3, bm.GetMaxMatchingNum());
         }
     }
 }

@@ -13,7 +13,7 @@ namespace topcoder_template_test
         [TestMethod]
         public void Ordinal()
         {
-            var ks = new Kruskal(3);
+            var ks = new Kruskal();
 
             ks.AddPath(0, 1, 300);
             ks.AddPath(1, 2, 50);

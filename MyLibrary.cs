@@ -476,7 +476,7 @@ namespace topcoder_template_test
             public int C { get; set; }
         }
 
-        private int maxIndex = -1;
+        int maxNodeIdx = 0;
         private const int INF = Int32.MaxValue;
 
         private Dictionary<int, List<Edge>> _edgeArray = new Dictionary<int, List<Edge>>();
@@ -485,10 +485,8 @@ namespace topcoder_template_test
         /// Dijkstra, get min cost between two points
         /// should not contain negatie cost path
         /// </summary>
-        /// <param name="size">max index of vertice</param>
-        public Dijkstra(int size)
+        public Dijkstra()
         {
-            maxIndex = size + 1;
         }
 
         // Add a path with its cost
@@ -496,13 +494,15 @@ namespace topcoder_template_test
         {
             if (!_edgeArray.ContainsKey(s)) _edgeArray.Add(s, new List<Edge>());
             _edgeArray[s].Add(new Edge() { T = t, C = cost });
+
+            maxNodeIdx = Math.Max(Math.Max(maxNodeIdx, s), t);
         }
 
         //Get the min cost from s
         //return Int32.MaxValue if no path
         public int[] GetMinCost(int s)
         {
-            int[] cost = new int[maxIndex];
+            int[] cost = new int[maxNodeIdx + 1];
             for (int i = 0; i < cost.Length; i++) cost[i] = INF;
             cost[s] = 0;
 
@@ -693,10 +693,8 @@ namespace topcoder_template_test
     {
         SortedSet<ComparablePair<int, Tuple<int, int>>> pathSet = new SortedSet<ComparablePair<int, Tuple<int, int>>>();
 
-        private int _maxIndex = 1;
-        public Kruskal(int maxIndex)
+        public Kruskal()
         {
-            _maxIndex = maxIndex;
         }
 
         public void AddPath(int s, int t, int cost)
@@ -737,20 +735,39 @@ namespace topcoder_template_test
         List<Edge>[] G;
         bool[] used;
 
-        public FordFulkerson(int size)
+        public FordFulkerson()
         {
-            G = new List<Edge>[size];
-            for (int i = 0; i < size; i++)
+            G = new List<Edge>[128];
+            for (int i = 0; i < 128; i++)
             {
                 G[i] = new List<Edge>();
             }
-            used = new bool[size];
+            used = new bool[128];
         }
 
         public void AddEdge(int f, int t, int cap)
         {
+            while (t + 2 >= G.Length || f + 2 >= G.Length) Expand();
+
             G[f].Add(new Edge() { to = t, cap = cap, rev = G[t].Count() });
             G[t].Add(new Edge() { to = f, cap = 0, rev = G[f].Count() - 1 });
+        }
+
+        void Expand()
+        {
+            var newG = new List<Edge>[G.Length * 2];
+            var newUsed = new bool[used.Length * 2];
+            for (int i = 0; i < G.Length; i++)
+            {
+                newG[i] = G[i];
+                newUsed[i] = used[i];
+            }
+            for (int i = G.Length; i < newG.Length; i++)
+            {
+                newG[i] = new List<Edge>();
+            }
+            G = newG;
+            used = newUsed;
         }
 
         private int dfs(int v, int t, int f)
@@ -777,6 +794,8 @@ namespace topcoder_template_test
 
         public int GetMaxFlow(int s, int t)
         {
+            while (s + 2 >= G.Length || t + 2 >= G.Length) Expand();
+
             int flow = 0;
             while (true)
             {
@@ -789,6 +808,8 @@ namespace topcoder_template_test
                 flow += f;
             }
         }
+
+        public int MaxIdx { get { return G.Length - 2; } }
     }
 
     /// <summary>
@@ -799,26 +820,24 @@ namespace topcoder_template_test
         FordFulkerson fordFulkerson;
         HashSet<int> startVertice = new HashSet<int>();
         HashSet<int> targetVertice = new HashSet<int>();
-        int maxIndex = -1;
 
-        public BipartiteMatching(int size)
+        public BipartiteMatching()
         {
-            fordFulkerson = new FordFulkerson(size + 2);
-            maxIndex = size + 1;
+            fordFulkerson = new FordFulkerson();
         }
 
         public void AddPair(int leftSide, int rightSide)
         {
-            fordFulkerson.AddEdge(leftSide + 1, rightSide + 1, 1);
+            fordFulkerson.AddEdge(leftSide, rightSide, 1);
 
-            startVertice.Add(leftSide + 1);
-            targetVertice.Add(rightSide + 1);
+            startVertice.Add(leftSide);
+            targetVertice.Add(rightSide);
         }
 
         public int GetMaxMatchingNum()
         {
-            int start = 0;
-            int target = maxIndex;
+            int start = fordFulkerson.MaxIdx;
+            int target = start + 1;
 
             foreach (var s in startVertice)
             {
