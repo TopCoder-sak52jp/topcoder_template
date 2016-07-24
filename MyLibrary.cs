@@ -266,7 +266,35 @@ namespace topcoder_template_test
 
             return lb + 1;
         }
-        
+
+        static Int64 ModInv(Int64 a, Int64 m)
+        {
+            Int64 x = 0, y = 0;
+            ExtGcd(a, m, ref x, ref y);
+            if (x < 0) x += m; //modInv is never negative
+            return x;
+        }
+
+        static Int64[] fact = new Int64[500005];
+        static Int64[] inv = new Int64[500005];
+
+        static void Precal_FactAndInv(Int64 mod)
+        {
+            fact[0] = 1;
+            inv[0] = ModInv(1, mod);
+
+            for (Int64 i = 1; i < 500005; i++)
+            {
+                fact[i] = (fact[i - 1] * i) % mod;
+                inv[i] = ModInv(fact[i], mod);
+            }
+        }
+
+        static Int64 Nck(int n, int k, Int64 mod)
+        {
+            return fact[n] * inv[n - k] % mod * inv[k] % mod;
+        }
+
         static public ulong ModPow(ulong x, ulong n, ulong mod)
         {
             ulong ret = 1;
@@ -296,9 +324,9 @@ namespace topcoder_template_test
             }
         }
 
-        static public int ExtGcd(int a, int b, ref int x, ref int y)
+        static public Int64 ExtGcd(Int64 a, Int64 b, ref Int64 x, ref Int64 y)
         {
-            int d = a;
+            Int64 d = a;
             if (b != 0)
             {
                 d = ExtGcd(b, a % b, ref y, ref x);
