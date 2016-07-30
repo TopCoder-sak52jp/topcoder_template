@@ -225,6 +225,40 @@ namespace topcoder_template_test
 
     static public class MyLib
     {
+        public static List<T> TopologicalSort<T>(List<T> list, List<List<int>> graph)
+        {
+            var ret = new List<int>();
+
+            var inEdgeNum = new int[list.Count()];
+            for (int i = 0; i < graph.Count(); i++)
+                foreach (var e in graph[i]) inEdgeNum[e]++;
+
+            var que = new PriorityQueue<int>();
+            for (int i = 0; i < list.Count(); i++)
+                if (inEdgeNum[i] == 0) que.Push(i);
+
+            while (que.Count() > 0)
+            {
+                var val = que.Pop();
+                ret.Add(val);
+
+                foreach (var e in graph[val])
+                {
+                    inEdgeNum[e]--;
+                    if (inEdgeNum[e] == 0) que.Push(e);
+                }
+            }
+
+            if (ret.Count() != list.Count()) return null;
+
+            var retVal = new List<T>();
+            foreach (var r in ret)
+            {
+                retVal.Add(list[r]);
+            }
+            return retVal;
+        }
+
         public static int LowerBound(int[] ar, int val)
         {
             var lb = -1;
@@ -271,7 +305,7 @@ namespace topcoder_template_test
         {
             Int64 x = 0, y = 0;
             ExtGcd(a, m, ref x, ref y);
-            if (x < 0) x += m; //modInv is never negative
+            if (x < 0) x += m; //modInv will never be negative
             return x;
         }
 
