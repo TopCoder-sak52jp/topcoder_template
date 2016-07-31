@@ -705,6 +705,53 @@ namespace topcoder_template_test
         }
     }
 
+    public class UnionFind_WithSize
+    {
+        List<int> par;
+
+        public UnionFind_WithSize(int N)
+        {
+            par = new List<int>(N);
+            for (int i = 0; i < N; i++) par.Add(-1);
+        }
+
+        public void Init()
+        {
+            for (int i = 0; i < par.Count; i++) par[i] = -1;
+        }
+
+        public int root(int x)
+        {
+            return par[x] >= 0 ? par[x] = root(par[x]) : x;
+        }
+
+        public bool Same(int x, int y)
+        {
+            return root(x) == root(y);
+        }
+
+        public bool Unite(int x, int y)
+        {
+            x = root(x);
+            y = root(y);
+            if (x == y) return false;
+            if (par[x] > par[y])
+            {
+                var tmp = y;
+                y = x;
+                x = tmp;
+            }
+            par[x] += par[y];
+            par[y] = x;
+            return true;
+        }
+
+        public int Size(int x)
+        {
+            return -par[root(x)];
+        }
+    }
+
     ///// <summary>
     ///// union find, positive int only
     ///// </summary>
