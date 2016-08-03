@@ -329,9 +329,9 @@ namespace topcoder_template_test
             return fact[n] * inv[n - k] % mod * inv[k] % mod;
         }
 
-        static public ulong ModPow(ulong x, ulong n, ulong mod)
+        static public Int64 ModPow(Int64 x, Int64 n, Int64 mod)
         {
-            ulong ret = 1;
+            Int64 ret = 1;
             while (n > 0)
             {
                 if ((n & 1) == 1) ret = ret * x % mod;
@@ -339,6 +339,19 @@ namespace topcoder_template_test
                 n >>= 1;
             }
             return ret;
+        }
+
+        //等差数列の和を逆元なしで求める。O(Logn)。
+        static public Int64 ModPowSum(Int64 r, Int64 n, Int64 mod)
+        {
+            if (n == 0) return 0;
+
+            //nが奇数：1 + r + ... + r^(n-1) = 1 + r(1 + r + ... + r^(n-2))
+            if (n % 2 == 1) return (ModPowSum(r, n - 1, mod) * r + 1) % mod;
+
+            //nが偶数：1 + r + ... + r^(n-1) = ( 1 + r + ... + r^(n/2-1)) +  r^(n/2) x ( 1 + r + ... + r^(n/2-1))
+            Int64 result = ModPowSum(r, n / 2, mod);
+            return (result * ModPow(r, n / 2, mod) + result) % mod;
         }
 
         static public void Sieve(int[] prime, bool[] isPrime)
@@ -374,8 +387,14 @@ namespace topcoder_template_test
             return d;
         }
 
-        static public int Gcd(int a, int b)
+        static Int64 Gcd(Int64 a, Int64 b)
         {
+            if (a < b)
+            {
+                var tmp = a;
+                a = b;
+                b = tmp;
+            }
             if (b == 0) return a;
             var p = a > b ? a : b;
             return Gcd(b, p % b);
