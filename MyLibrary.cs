@@ -400,6 +400,35 @@ namespace topcoder_template_test
             return Gcd(b, p % b);
         }
 
+        //素因数分解
+        public static Dictionary<UInt64, UInt64> GetFactors(UInt64 n)
+        {
+            var ret = new Dictionary<UInt64, UInt64>();
+
+            while (n % 2 == 0)
+            {
+                if (!ret.ContainsKey(2)) ret.Add(2, 0);
+                ret[2]++;
+                n = n / 2;
+            }
+            for (UInt64 i = 3; i <= Math.Sqrt(n); i = i + 2)
+            {
+                while (n % i == 0)
+                {
+                    if (!ret.ContainsKey(i)) ret.Add(i, 0);
+                    ret[i]++;
+                    n = n / i;
+                }
+            }
+            if (n > 2)
+            {
+                if (!ret.ContainsKey(n)) ret.Add(n, 0);
+                ret[n]++;
+            }
+
+            return ret;
+        }
+
         static public void DisplayIEnumContents<T>(IEnumerable<T> EnumParam)
         {
             Console.WriteLine(string.Join(",", EnumParam.ToArray()));
