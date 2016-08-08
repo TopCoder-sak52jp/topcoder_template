@@ -497,6 +497,88 @@ namespace topcoder_template_test
         }
     }
 
+    //強連結成分(Strongly Connected Component)分解
+    public class Scc
+    {
+        public List<List<int>> _graph;
+        public List<List<int>> _r_Graph;
+
+        bool[] _used;
+        List<int> _vs = new List<int>();
+
+        //属する強連結成分のトポロジカル順序
+        public int[] Cmp;
+
+        //各強連結成分に属するノード
+        public List<List<int>> Components;
+
+        int _vn;
+
+        public void Init(int vn)
+        {
+            _vn = vn;
+
+            _graph = new List<List<int>>();
+            for (int i = 0; i < vn; i++) _graph.Add(new List<int>());
+
+            _r_Graph = new List<List<int>>();
+            for (int i = 0; i < vn; i++) _r_Graph.Add(new List<int>());
+
+            Cmp = new int[vn];
+            _used = new bool[vn];
+        }
+
+        public void AddEdge(int from, int to)
+        {
+            _graph[from].Add(to);
+            _r_Graph[to].Add(from);
+        }
+
+        void Dfs(int v)
+        {
+            _used[v] = true;
+            for (int i = 0; i < _graph[v].Count(); i++)
+            {
+                if (!_used[_graph[v][i]]) Dfs(_graph[v][i]);
+            }
+            _vs.Add(v);
+        }
+
+        void RDfs(int v, int k, List<int> c)
+        {
+            c.Add(v);
+            _used[v] = true;
+            Cmp[v] = k;
+            for (int i = 0; i < _r_Graph[v].Count(); i++)
+            {
+                if (!_used[_r_Graph[v][i]]) RDfs(_graph[v][i], k, c);
+            }
+        }
+
+        //Cmp[]とComponentsに値を設定し、強連結成分数を返す
+        public int GetScc()
+        {
+            for (int i = 0; i < _used.Length; i++) _used[i] = false;
+            _vs.Clear();
+            for (int v = 0; v < _vn; v++)
+            {
+                if (!_used[v]) Dfs(v);
+            }
+
+            Components = new List<List<int>>();
+            for (int i = 0; i < _used.Length; i++) _used[i] = false;
+            int k = 0;
+            for (int i = _vs.Count() - 1; i >= 0; i--)
+            {
+                var c = new List<int>();
+                if (!_used[_vs[i]]) RDfs(_vs[i], k++, c);
+                Components.Add(c);
+            }
+
+            return k;
+        }
+    }
+
     /// <summary>
     /// find the shortest path from start to all destination
     /// </summary>
